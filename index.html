@@ -361,7 +361,21 @@
           </div>
         </section>
 
-        <!-- Prerequisites Section - Hidden until domain is entered -->
+        <!-- Subdomain Flow Section - Hidden until subdomain is entered -->
+        <section id="subdomain-flow" class="mb-16 hidden">
+          <div class="p-8 bg-purple-50 border border-purple-200 rounded-xl text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+            </div>
+            <h2 class="font-google-sans text-2xl font-medium text-purple-900 mb-2">Subdomain Setup</h2>
+            <p class="text-purple-700 mb-4">You're setting up a subdomain: <strong id="subdomain-display"></strong></p>
+            <p class="text-sm text-purple-600">Subdomain setup documentation coming soon.</p>
+          </div>
+        </section>
+
+        <!-- Prerequisites Section - Hidden until root domain is entered -->
         <section id="prerequisites" class="mb-16 hidden">
           <h2 class="font-google-sans text-3xl font-medium text-google-gray-900 mb-6">Prerequisites</h2>
 
@@ -1453,12 +1467,42 @@
         return;
       }
 
-      // Show the Prerequisites and Add Domain sections now that user has entered their domain
-      document.getElementById('prerequisites').classList.remove('hidden');
-      document.getElementById('add-domain').classList.remove('hidden');
+      // Remove any protocol prefix
+      let domain = input.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-      // Scroll to prerequisites section
-      document.getElementById('prerequisites').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Parse the domain
+      const parts = domain.split('.');
+
+      // Determine if it's a subdomain (more than 2 parts, excluding common TLDs like .co.uk)
+      const commonTwoPartTlds = ['co.uk', 'com.au', 'co.nz', 'org.uk', 'net.au'];
+      let isSubdomain = false;
+
+      // Check if it ends with a two-part TLD
+      const lastTwoParts = parts.slice(-2).join('.');
+      const hasTwoPartTld = commonTwoPartTlds.includes(lastTwoParts);
+
+      if (hasTwoPartTld && parts.length > 3) {
+        isSubdomain = true;
+      } else if (!hasTwoPartTld && parts.length > 2) {
+        isSubdomain = true;
+      }
+
+      // Hide all flow sections first
+      document.getElementById('subdomain-flow').classList.add('hidden');
+      document.getElementById('prerequisites').classList.add('hidden');
+      document.getElementById('add-domain').classList.add('hidden');
+
+      if (isSubdomain) {
+        // Show subdomain flow
+        document.getElementById('subdomain-display').textContent = domain;
+        document.getElementById('subdomain-flow').classList.remove('hidden');
+        document.getElementById('subdomain-flow').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // Show root domain flow (Prerequisites and Add Domain sections)
+        document.getElementById('prerequisites').classList.remove('hidden');
+        document.getElementById('add-domain').classList.remove('hidden');
+        document.getElementById('prerequisites').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     // Allow Enter key to trigger generation
