@@ -433,6 +433,18 @@
                   </ul>
                 </div>
 
+                <p class="text-sm text-google-gray-600 mt-6 mb-4">
+                  Scroll down to see the remaining DNS records — SPF, DKIM, and DMARC for your subdomain:
+                </p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-06 16-32-56.png"
+                       alt="SPF, DKIM and DMARC record sections for subdomain showing hostnames and values" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-3 italic">
+                  These records authorize sending from your subdomain (SPF), add a cryptographic signature (DKIM), and define your spoofing policy (DMARC).
+                  Each section shows the Record Type, Hostname, and Value you'll need to configure at your DNS provider.
+                </p>
+
                 <div class="callout callout-info mt-4">
                   <div class="flex gap-3">
                     <svg class="w-5 h-5 text-google-blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
