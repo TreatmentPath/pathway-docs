@@ -358,8 +358,8 @@
               <div class="step-number">3</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Click "Add" to add your subdomain</h3>
-                <p class="text-sm text-google-gray-600">
-                  In the <strong>Added Domains</strong> section, click the <strong>Add</strong> button to open the domain registration dialog.
+                <p class="text-sm text-google-gray-600 mb-4">
+                  In the <strong>Added Domains</strong> section, click the <strong>Add</strong> button (highlighted as step 4 in the screenshot above) to open the domain registration dialog.
                 </p>
               </div>
             </div>
@@ -373,7 +373,14 @@
                   Enter your full subdomain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono">mail.yourdomain.com</code>)
                   and click <strong>Register domain</strong>.
                 </p>
-                <div class="callout callout-info">
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-05 21-03-32.png"
+                       alt="Add custom sender domain dialog showing domain input and Register domain button" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 italic">
+                  The dialog highlights where to enter your subdomain and the <strong>Register domain</strong> button to confirm.
+                </p>
+                <div class="callout callout-info mt-4">
                   <div class="flex gap-3">
                     <svg class="w-5 h-5 text-google-blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
@@ -394,6 +401,14 @@
                 <p class="text-sm text-google-gray-600 mb-4">
                   After registering your subdomain, you'll be taken to the domain configuration page. Here you'll see all the DNS records
                   that need to be added to your domain provider. Your subdomain will show a <span class="bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-medium">pending</span> status until verification is complete.
+                </p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-06 16-17-16.png"
+                       alt="Domain configuration page showing verification record with hostname, value, and verify button" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-3 italic">
+                  The domain configuration page displays all required DNS records. The highlighted areas show:
+                  (1) Hostname - the DNS record name, (2) Value - the record content to copy, and (3) Verify button - click after adding records.
                 </p>
 
                 <div class="mt-4 space-y-3">
