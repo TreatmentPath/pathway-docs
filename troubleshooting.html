@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathway Documentation - Troubleshooting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'google-sans': ['Google Sans', 'Roboto', 'sans-serif'],
+            'roboto': ['Roboto', 'sans-serif'],
+            'mono': ['Roboto Mono', 'monospace'],
+          },
+          colors: {
+            'google-blue': '#1a73e8',
+            'google-blue-hover': '#1557b0',
+            'google-green': '#1e8e3e',
+            'google-yellow': '#f9ab00',
+            'google-red': '#d93025',
+            'google-gray': {
+              50: '#f8f9fa',
+              100: '#f1f3f4',
+              200: '#e8eaed',
+              300: '#dadce0',
+              400: '#bdc1c6',
+              500: '#9aa0a6',
+              600: '#80868b',
+              700: '#5f6368',
+              800: '#3c4043',
+              900: '#202124',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f3f4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #dadce0;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #bdc1c6;
+    }
+
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Active nav item */
+    .nav-item.active {
+      color: #1a73e8;
+      background: #e8f0fe;
+      border-right: 3px solid #1a73e8;
+    }
+  </style>
+</head>
+<body class="font-roboto text-google-gray-800 bg-white">
+  <!-- Top Navigation Bar -->
+  <header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-google-gray-200 z-50 flex items-center px-6">
+    <div class="flex items-center gap-3">
+      <img src="assets/treatmentpath-logo.png" alt="Pathway Logo" class="h-8">
+      <span class="font-google-sans text-xl text-google-gray-800">Pathway</span>
+      <span class="text-google-gray-400 mx-2">|</span>
+      <span class="text-google-gray-600">Documentation</span>
+    </div>
+    <div class="ml-auto flex items-center gap-4">
+      <div class="relative">
+        <input type="text" placeholder="Search documentation..."
+               class="w-80 pl-10 pr-4 py-2 bg-google-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-google-blue focus:bg-white transition-all">
+        <svg class="w-5 h-5 text-google-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex pt-16">
+    <!-- Side Navigation -->
+    <nav class="fixed left-0 top-16 bottom-0 w-72 bg-white border-r border-google-gray-200 overflow-y-auto py-6">
+      <div class="px-4">
+        <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3">Getting Started</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="index.html#overview" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              Overview
+            </a>
+          </li>
+          <li>
+            <a href="index.html#prerequisites" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              Prerequisites
+            </a>
+          </li>
+        </ul>
+
+        <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Domain Setup</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="index.html#add-domain" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              Add Your Domain
+            </a>
+          </li>
+        </ul>
+
+        <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Troubleshooting</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="#common-issues" class="nav-item active block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              Common Issues
+            </a>
+          </li>
+          <li>
+            <a href="#faq" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              FAQ
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="ml-72 flex-1 min-h-screen">
+      <div class="max-w-4xl mx-auto px-8 py-12">
+
+        <!-- Page Header -->
+        <div class="mb-12">
+          <a href="index.html" class="inline-flex items-center gap-2 text-google-blue hover:underline mb-4">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Domain Setup
+          </a>
+          <h1 class="font-google-sans text-4xl font-medium text-google-gray-900 mb-4">Troubleshooting & FAQ</h1>
+          <p class="text-lg text-google-gray-600">
+            Find solutions to common issues and answers to frequently asked questions about domain setup.
+          </p>
+        </div>
+
+        <!-- Common Issues Section -->
+        <section id="common-issues" class="mb-16">
+          <h2 class="font-google-sans text-3xl font-medium text-google-gray-900 mb-6">Common Issues</h2>
+
+          <div class="space-y-6">
+            <div class="border border-google-gray-200 rounded-lg overflow-hidden">
+              <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-google-gray-50 transition-colors"
+                      onclick="toggleAccordion(this)">
+                <span class="font-medium text-google-gray-800">DNS records not found after adding them</span>
+                <svg class="w-5 h-5 text-google-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <div class="hidden px-6 pb-4">
+                <p class="text-sm text-google-gray-600 mb-3">
+                  DNS propagation can take time. Here's what to do:
+                </p>
+                <ul class="text-sm text-google-gray-600 space-y-2 list-disc list-inside">
+                  <li>Wait at least 15-30 minutes after adding records</li>
+                  <li>Check using a DNS lookup tool like <a href="https://mxtoolbox.com" class="text-google-blue hover:underline" target="_blank">MXToolbox</a></li>
+                  <li>Clear your local DNS cache</li>
+                  <li>Try verifying again in a few hours</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="border border-google-gray-200 rounded-lg overflow-hidden">
+              <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-google-gray-50 transition-colors"
+                      onclick="toggleAccordion(this)">
+                <span class="font-medium text-google-gray-800">SPF record already exists</span>
+                <svg class="w-5 h-5 text-google-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <div class="hidden px-6 pb-4">
+                <p class="text-sm text-google-gray-600 mb-3">
+                  You can only have one SPF record per domain. Merge our include statement with your existing record:
+                </p>
+                <code class="font-mono text-xs block bg-google-gray-50 p-3 rounded">
+                  v=spf1 include:existing.com include:_spf.treatmentpath.com ~all
+                </code>
+              </div>
+            </div>
+
+            <div class="border border-google-gray-200 rounded-lg overflow-hidden">
+              <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-google-gray-50 transition-colors"
+                      onclick="toggleAccordion(this)">
+                <span class="font-medium text-google-gray-800">DKIM verification failing</span>
+                <svg class="w-5 h-5 text-google-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <div class="hidden px-6 pb-4">
+                <p class="text-sm text-google-gray-600 mb-3">Common DKIM issues:</p>
+                <ul class="text-sm text-google-gray-600 space-y-2 list-disc list-inside">
+                  <li>Make sure you're using CNAME record type, not TXT</li>
+                  <li>The hostname should be <code class="bg-google-gray-100 px-1 rounded">tp._domainkey</code>, not the full domain</li>
+                  <li>If using Cloudflare, ensure proxy is disabled (gray cloud)</li>
+                  <li>Some providers add your domain automatically - don't include it twice</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="border border-google-gray-200 rounded-lg overflow-hidden">
+              <button class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-google-gray-50 transition-colors"
+                      onclick="toggleAccordion(this)">
+                <span class="font-medium text-google-gray-800">Emails still going to spam</span>
+                <svg class="w-5 h-5 text-google-gray-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              <div class="hidden px-6 pb-4">
+                <p class="text-sm text-google-gray-600 mb-3">
+                  Even with proper authentication, emails might go to spam initially. Tips to improve deliverability:
+                </p>
+                <ul class="text-sm text-google-gray-600 space-y-2 list-disc list-inside">
+                  <li>Start with low volume and gradually increase</li>
+                  <li>Ensure your email content isn't triggering spam filters</li>
+                  <li>Keep your bounce rate low by using valid email addresses</li>
+                  <li>Ask recipients to mark your emails as "not spam"</li>
+                  <li>Consider warming up your domain over 2-4 weeks</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="mb-16">
+          <h2 class="font-google-sans text-3xl font-medium text-google-gray-900 mb-6">Frequently Asked Questions</h2>
+
+          <div class="space-y-6">
+            <div>
+              <h3 class="font-medium text-google-gray-800 mb-2">How long does domain verification take?</h3>
+              <p class="text-sm text-google-gray-600">
+                Once DNS records are properly configured, verification is instant. However, DNS propagation can take
+                anywhere from a few minutes to 48 hours, with most changes visible within 1-4 hours.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="font-medium text-google-gray-800 mb-2">Can I use a subdomain instead of my main domain?</h3>
+              <p class="text-sm text-google-gray-600">
+                Yes, you can use a subdomain like <code class="bg-google-gray-100 px-1 rounded">mail.yourdomain.com</code>.
+                This is actually recommended if you have existing email services on your main domain.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="font-medium text-google-gray-800 mb-2">Do I need all three records (SPF, DKIM, DMARC)?</h3>
+              <p class="text-sm text-google-gray-600">
+                SPF and DKIM are required for good deliverability. DMARC is strongly recommended but optional initially.
+                We recommend adding all three for the best email reputation.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="font-medium text-google-gray-800 mb-2">Will this affect my existing email?</h3>
+              <p class="text-sm text-google-gray-600">
+                Adding Pathway to your SPF record won't affect existing email services. Just make sure to merge
+                our include statement with your existing SPF record rather than replacing it.
+              </p>
+            </div>
+
+            <div>
+              <h3 class="font-medium text-google-gray-800 mb-2">Can I add multiple domains?</h3>
+              <p class="text-sm text-google-gray-600">
+                Yes, you can add and verify multiple domains. Each domain will need its own set of DNS records configured.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-google-gray-200 pt-8 mt-16">
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-google-gray-500">
+              &copy; 2024 Pathway. All rights reserved.
+            </p>
+            <div class="flex gap-6">
+              <a href="#" class="text-sm text-google-gray-500 hover:text-google-gray-700">Support</a>
+              <a href="#" class="text-sm text-google-gray-500 hover:text-google-gray-700">Privacy</a>
+              <a href="#" class="text-sm text-google-gray-500 hover:text-google-gray-700">Terms</a>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Accordion toggle
+    function toggleAccordion(button) {
+      const content = button.nextElementSibling;
+      const icon = button.querySelector('svg');
+
+      content.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    }
+
+    // Active nav highlighting on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+      const sections = document.querySelectorAll('section[id]');
+      const navItems = document.querySelectorAll('.nav-item');
+
+      function highlightNav() {
+        const scrollPos = window.scrollY + 100;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          const sectionId = section.getAttribute('id');
+
+          if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+            navItems.forEach(item => {
+              item.classList.remove('active');
+              if (item.getAttribute('href') === '#' + sectionId) {
+                item.classList.add('active');
+              }
+            });
+          }
+        });
+      }
+
+      window.addEventListener('scroll', highlightNav);
+      highlightNav();
+    });
+  </script>
+</body>
+</html>
