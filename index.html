@@ -447,7 +447,7 @@
                 </p>
 
                 <div class="mt-4 space-y-3">
-                  <p class="text-sm text-google-gray-700 font-medium">This page displays three types of records:</p>
+                  <p class="text-sm text-google-gray-700 font-medium">This page displays four types of records:</p>
                   <ul class="text-sm text-google-gray-600 space-y-2">
                     <li class="flex items-start gap-2">
                       <span class="bg-blue-100 text-google-blue px-2 py-0.5 rounded text-xs font-medium mt-0.5">TXT</span>
@@ -458,11 +458,27 @@
                       <span><strong>SPF Record</strong> — Authorizes TreatmentPath to send emails on your behalf.</span>
                     </li>
                     <li class="flex items-start gap-2">
-                      <span class="bg-green-100 text-google-green px-2 py-0.5 rounded text-xs font-medium mt-0.5">CNAME</span>
-                      <span><strong>DKIM Records</strong> — Adds a digital signature to authenticate your emails.</span>
+                      <span class="bg-blue-100 text-google-blue px-2 py-0.5 rounded text-xs font-medium mt-0.5">TXT</span>
+                      <span><strong>DKIM Record</strong> — Adds a digital signature to authenticate your emails.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                      <span class="bg-blue-100 text-google-blue px-2 py-0.5 rounded text-xs font-medium mt-0.5">TXT</span>
+                      <span><strong>DMARC Record</strong> — Protects your domain from email spoofing.</span>
                     </li>
                   </ul>
                 </div>
+
+                <p class="text-sm text-google-gray-600 mt-6 mb-4">
+                  Scroll down to see the remaining DNS records — SPF, DKIM, and DMARC:
+                </p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-05 21-05-01.png"
+                       alt="SPF, DKIM and DMARC record sections showing hostnames and values" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-3 italic">
+                  The remaining records: SPF (authorizes email sending), DKIM (cryptographic signature), and DMARC (spoofing protection).
+                  Each section shows the Record Type, Hostname, and Value you'll need to add to your DNS provider.
+                </p>
 
                 <div class="callout callout-info mt-4">
                   <div class="flex gap-3">
