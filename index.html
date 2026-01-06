@@ -175,8 +175,43 @@
         <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Domain Setup</h3>
         <ul class="space-y-1">
           <li>
-            <a href="#add-domain" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              Add Your Domain
+            <a href="#step-1" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              1. Open Settings
+            </a>
+          </li>
+          <li>
+            <a href="#step-2" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              2. Navigate to Email Settings
+            </a>
+          </li>
+          <li>
+            <a href="#step-3" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              3. Click "Add" to add domain
+            </a>
+          </li>
+          <li>
+            <a href="#step-4" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              4. Enter your domain name
+            </a>
+          </li>
+          <li>
+            <a href="#step-5" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              5. Review DNS records
+            </a>
+          </li>
+          <li>
+            <a href="#step-6" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              6. Add DNS records
+            </a>
+          </li>
+          <li>
+            <a href="#step-7" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              7. Verify DNS records
+            </a>
+          </li>
+          <li>
+            <a href="#step-8" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              8. Set up Inbound Parse
             </a>
           </li>
         </ul>
@@ -224,52 +259,12 @@
             </div>
           </div>
 
-          <h2 class="font-google-sans text-2xl font-medium text-google-gray-900 mt-10 mb-4">What you'll set up</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
-              <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-              <h3 class="font-medium text-google-gray-800 mb-2">Verification Record</h3>
-              <p class="text-sm text-google-gray-600">Prove ownership of your domain to Pathway.</p>
-            </div>
-            <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
-              <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                </svg>
-              </div>
-              <h3 class="font-medium text-google-gray-800 mb-2">SPF Record</h3>
-              <p class="text-sm text-google-gray-600">Authorize Pathway to send emails on behalf of your domain.</p>
-            </div>
-            <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
-              <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-google-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-                </svg>
-              </div>
-              <h3 class="font-medium text-google-gray-800 mb-2">DKIM Record</h3>
-              <p class="text-sm text-google-gray-600">Cryptographically sign your emails to prevent tampering.</p>
-            </div>
-            <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
-              <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-4">
-                <svg class="w-6 h-6 text-google-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
-              </div>
-              <h3 class="font-medium text-google-gray-800 mb-2">DMARC Record</h3>
-              <p class="text-sm text-google-gray-600">Define how receiving servers handle authentication failures.</p>
-            </div>
-          </div>
-
           <!-- Interactive Domain Configurator -->
           <div id="domain-configurator" class="mt-10 p-6 bg-gradient-to-r from-google-blue/5 to-purple-500/5 border border-google-blue/20 rounded-xl">
             <h3 class="font-google-sans text-xl font-medium text-google-gray-900 mb-2 flex items-center gap-2">
               <svg class="w-6 h-6 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
               Get Started
             </h3>
@@ -296,20 +291,54 @@
               </div>
             </div>
           </div>
+
+          <!-- What you'll set up - Hidden until domain is entered -->
+          <div id="what-youll-setup" class="hidden">
+            <h2 class="font-google-sans text-2xl font-medium text-google-gray-900 mt-10 mb-4">What you'll set up</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <h3 class="font-medium text-google-gray-800 mb-2">Verification Record</h3>
+                <p class="text-sm text-google-gray-600">Prove ownership of your domain to Pathway.</p>
+              </div>
+              <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg class="w-6 h-6 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <h3 class="font-medium text-google-gray-800 mb-2">SPF Record</h3>
+                <p class="text-sm text-google-gray-600">Authorize Pathway to send emails on behalf of your domain.</p>
+              </div>
+              <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg class="w-6 h-6 text-google-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                  </svg>
+                </div>
+                <h3 class="font-medium text-google-gray-800 mb-2">DKIM Record</h3>
+                <p class="text-sm text-google-gray-600">Cryptographically sign your emails to prevent tampering.</p>
+              </div>
+              <div class="p-6 border border-google-gray-200 rounded-xl hover:shadow-md transition-shadow">
+                <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-4">
+                  <svg class="w-6 h-6 text-google-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                </div>
+                <h3 class="font-medium text-google-gray-800 mb-2">DMARC Record</h3>
+                <p class="text-sm text-google-gray-600">Define how receiving servers handle authentication failures.</p>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <!-- Subdomain Flow Section - Hidden until subdomain is entered -->
+        <!-- Subdomain Flow Section - Kept for backwards compatibility, redirects to subdomain-setup.html -->
         <section id="subdomain-flow" class="mb-16 hidden">
-          <div class="p-8 bg-purple-50 border border-purple-200 rounded-xl text-center">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
-              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-              </svg>
-            </div>
-            <h2 class="font-google-sans text-2xl font-medium text-purple-900 mb-2">Subdomain Setup</h2>
-            <p class="text-purple-700 mb-4">You're setting up a subdomain: <strong id="subdomain-display"></strong></p>
-            <p class="text-sm text-purple-600">Subdomain setup documentation coming soon.</p>
-          </div>
+          <!-- This section is no longer used - subdomain setup redirects to subdomain-setup.html -->
         </section>
 
         <!-- Prerequisites Section - Hidden until root domain is entered -->
@@ -358,7 +387,7 @@
 
           <div class="space-y-6">
             <!-- Step 1 -->
-            <div class="flex gap-4">
+            <div id="step-1" class="flex gap-4">
               <div class="step-number">1</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Open Settings</h3>
@@ -377,7 +406,7 @@
             </div>
 
             <!-- Step 2 -->
-            <div class="flex gap-4">
+            <div id="step-2" class="flex gap-4">
               <div class="step-number">2</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Navigate to Email Settings</h3>
@@ -400,7 +429,7 @@
             </div>
 
             <!-- Step 3 -->
-            <div class="flex gap-4">
+            <div id="step-3" class="flex gap-4">
               <div class="step-number">3</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Click "Add" to add your domain</h3>
@@ -411,7 +440,7 @@
             </div>
 
             <!-- Step 4 -->
-            <div class="flex gap-4">
+            <div id="step-4" class="flex gap-4">
               <div class="step-number">4</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Enter your domain name</h3>
@@ -430,7 +459,7 @@
             </div>
 
             <!-- Step 5 -->
-            <div class="flex gap-4">
+            <div id="step-5" class="flex gap-4">
               <div class="step-number">5</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Review your DNS records</h3>
@@ -495,7 +524,7 @@
             </div>
 
             <!-- Step 6 -->
-            <div class="flex gap-4">
+            <div id="step-6" class="flex gap-4">
               <div class="step-number">6</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Add DNS records to your domain provider</h3>
@@ -576,7 +605,7 @@
             </div>
 
             <!-- Step 7 -->
-            <div class="flex gap-4">
+            <div id="step-7" class="flex gap-4">
               <div class="step-number">7</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Verify your DNS records</h3>
@@ -625,7 +654,7 @@
             </div>
 
             <!-- Step 8: Inbound Parse -->
-            <div class="flex gap-4">
+            <div id="step-8" class="flex gap-4">
               <div class="step-number">8</div>
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Set up Inbound Parse for receiving messages (Optional)</h3>
@@ -835,16 +864,17 @@
       document.getElementById('prerequisites').classList.add('hidden');
       document.getElementById('add-domain').classList.add('hidden');
 
+      // Show the "What you'll set up" section
+      document.getElementById('what-youll-setup').classList.remove('hidden');
+
       if (isSubdomain) {
-        // Show subdomain flow
-        document.getElementById('subdomain-display').textContent = domain;
-        document.getElementById('subdomain-flow').classList.remove('hidden');
-        document.getElementById('subdomain-flow').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Redirect to the separate subdomain setup page
+        window.location.href = 'subdomain-setup.html';
       } else {
         // Show root domain flow (Prerequisites and Add Domain sections)
         document.getElementById('prerequisites').classList.remove('hidden');
         document.getElementById('add-domain').classList.remove('hidden');
-        document.getElementById('prerequisites').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('what-youll-setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
