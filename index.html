@@ -550,6 +550,112 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Subdomain Section -->
+          <div class="mt-10 mb-8">
+            <h3 class="font-google-sans text-xl font-medium text-google-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+              Using a Subdomain
+            </h3>
+            <p class="text-google-gray-600 mb-4">
+              If you prefer to send emails from a subdomain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono">mail.yourdomain.com</code> or
+              <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono">notify.yourdomain.com</code>), the DNS record hostnames will change slightly.
+              This is recommended if you already have email services running on your main domain.
+            </p>
+
+            <div class="callout callout-info mb-6">
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 text-google-blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+                <p class="text-sm text-google-gray-700">
+                  <strong>Why use a subdomain?</strong> Using a subdomain isolates your transactional emails from your main domain's reputation.
+                  If you already use Google Workspace, Microsoft 365, or another email provider on your root domain, a subdomain prevents conflicts.
+                </p>
+              </div>
+            </div>
+
+            <h4 class="font-medium text-google-gray-800 mb-3">Example: Subdomain <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono">mail.yourdomain.com</code></h4>
+
+            <div class="overflow-x-auto mb-6">
+              <table class="doc-table">
+                <thead>
+                  <tr>
+                    <th>Record</th>
+                    <th>Type</th>
+                    <th>Host/Name</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="font-medium">Verification</td>
+                    <td><span class="bg-blue-100 text-google-blue px-2 py-1 rounded text-sm font-medium">TXT</span></td>
+                    <td><code class="font-mono text-sm">mail</code></td>
+                    <td><code class="font-mono text-sm break-all">treatmentpath-verify=abc123...</code></td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium">SPF</td>
+                    <td><span class="bg-blue-100 text-google-blue px-2 py-1 rounded text-sm font-medium">TXT</span></td>
+                    <td><code class="font-mono text-sm">mail</code></td>
+                    <td><code class="font-mono text-sm break-all">v=spf1 include:treatmentpath.com ~all</code></td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium">DKIM</td>
+                    <td><span class="bg-blue-100 text-google-blue px-2 py-1 rounded text-sm font-medium">TXT</span></td>
+                    <td><code class="font-mono text-sm">treatmentpath._domainkey.mail</code></td>
+                    <td><code class="font-mono text-sm break-all">v=DKIM1; k=rsa; p=MIIBIjANBg...</code></td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium">DMARC</td>
+                    <td><span class="bg-blue-100 text-google-blue px-2 py-1 rounded text-sm font-medium">TXT</span></td>
+                    <td><code class="font-mono text-sm">_dmarc.mail</code></td>
+                    <td><code class="font-mono text-sm break-all">v=DMARC1; p=quarantine; pct=100</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="bg-google-gray-50 rounded-lg p-5 border border-google-gray-200">
+              <h4 class="font-medium text-google-gray-800 mb-3">Key differences for subdomains:</h4>
+              <ul class="text-sm text-google-gray-600 space-y-3">
+                <li class="flex items-start gap-2">
+                  <span class="text-google-green mt-1">✓</span>
+                  <span>Replace <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">@</code> with your subdomain name (e.g., <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">mail</code>)</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-google-green mt-1">✓</span>
+                  <span>For DKIM, prepend your subdomain: <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">treatmentpath._domainkey.mail</code> instead of <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">treatmentpath._domainkey</code></span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-google-green mt-1">✓</span>
+                  <span>For DMARC, use <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">_dmarc.mail</code> instead of <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">_dmarc</code></span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-google-green mt-1">✓</span>
+                  <span>Your sending address will be <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">noreply@mail.yourdomain.com</code> instead of <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200">noreply@yourdomain.com</code></span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="callout callout-warning mt-6">
+              <div class="flex gap-3">
+                <svg class="w-5 h-5 text-google-yellow flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                </svg>
+                <div>
+                  <p class="font-medium text-google-gray-800">DNS Provider Variations</p>
+                  <p class="text-sm text-google-gray-600 mt-1">
+                    Some DNS providers automatically append your domain to the hostname. If your provider does this, you may need to enter just
+                    <code class="bg-white/50 px-1 rounded">mail</code> instead of <code class="bg-white/50 px-1 rounded">mail.yourdomain.com</code>.
+                    Check your provider's documentation if records aren't resolving correctly.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- SPF Section -->
