@@ -231,7 +231,6 @@
             Got it
           </button>
         </div>
-      </div>
     </div>
   </div>
 
@@ -239,13 +238,13 @@
     // Modal functions
     function openModal() {
       const modal = document.getElementById('domain-modal');
-      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
       const modal = document.getElementById('domain-modal');
-      modal.classList.add('hidden');
+      modal.style.display = 'none';
       document.body.style.overflow = '';
       // Focus on the input field after closing
       document.getElementById('domain-input').focus();
