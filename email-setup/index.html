@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathway Documentation - Domain Setup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'google-sans': ['Google Sans', 'Roboto', 'sans-serif'],
+            'roboto': ['Roboto', 'sans-serif'],
+            'mono': ['Roboto Mono', 'monospace'],
+          },
+          colors: {
+            'google-blue': '#1a73e8',
+            'google-blue-hover': '#1557b0',
+            'google-green': '#1e8e3e',
+            'google-yellow': '#f9ab00',
+            'google-red': '#d93025',
+            'google-gray': {
+              50: '#f8f9fa',
+              100: '#f1f3f4',
+              200: '#e8eaed',
+              300: '#dadce0',
+              400: '#bdc1c6',
+              500: '#9aa0a6',
+              600: '#80868b',
+              700: '#5f6368',
+              800: '#3c4043',
+              900: '#202124',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f3f4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #dadce0;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #bdc1c6;
+    }
+
+    /* Smooth scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Code block styling */
+    .code-block {
+      background: #f8f9fa;
+      border: 1px solid #e8eaed;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    /* Active nav item */
+    .nav-item.active {
+      color: #1a73e8;
+      background: #e8f0fe;
+      border-right: 3px solid #1a73e8;
+    }
+
+    /* Callout boxes */
+    .callout {
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 16px 0;
+    }
+    .callout-info {
+      background: #e8f0fe;
+      border-left: 4px solid #1a73e8;
+    }
+  </style>
+</head>
+<body class="font-roboto text-google-gray-800 bg-white overflow-x-hidden">
+  <!-- Top Navigation Bar -->
+  <header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-google-gray-200 z-50 flex items-center px-4 md:px-6">
+    <div class="flex items-center gap-2 md:gap-3">
+      <a href="../index.html" class="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+        <img src="../assets/treatmentpath-logo.png" alt="Pathway Logo" class="h-8">
+        <span class="font-google-sans text-lg md:text-xl text-google-gray-800">Pathway</span>
+      </a>
+      <span class="text-google-gray-400 mx-1 md:mx-2">|</span>
+      <a href="../index.html" class="text-google-gray-600 hover:text-google-blue transition-colors">Documentation</a>
+    </div>
+    <div class="ml-auto flex items-center gap-2 md:gap-4">
+      <!-- Mobile search icon -->
+      <button class="md:hidden p-2 rounded-full hover:bg-google-gray-100 transition-colors" aria-label="Search">
+        <svg class="w-5 h-5 text-google-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </button>
+      <!-- Desktop search bar -->
+      <div class="relative hidden md:block">
+        <input type="text" placeholder="Search documentation..."
+               class="w-80 pl-10 pr-4 py-2 bg-google-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-google-blue focus:bg-white transition-all">
+        <svg class="w-5 h-5 text-google-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex pt-16">
+    <!-- Side Navigation (hidden on tablet/mobile) -->
+    <nav class="hidden lg:fixed lg:block left-0 top-16 bottom-0 w-72 bg-white border-r border-google-gray-200 overflow-y-auto py-6">
+      <div class="px-4">
+        <!-- Back to Docs Home -->
+        <a href="../index.html" class="flex items-center gap-2 px-3 py-2 mb-4 text-sm text-google-gray-600 hover:text-google-blue hover:bg-google-gray-50 rounded-lg transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          All Documentation
+        </a>
+
+        <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3">Getting Started</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="#overview" class="nav-item active block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              Overview
+            </a>
+          </li>
+        </ul>
+
+        <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Troubleshooting</h3>
+        <ul class="space-y-1">
+          <li>
+            <a href="troubleshooting.html#common-issues" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              Common Issues
+            </a>
+          </li>
+          <li>
+            <a href="troubleshooting.html#faq" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+              FAQ
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:ml-72 flex-1 min-h-screen overflow-x-hidden">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-12">
+
+        <!-- Overview Section -->
+        <section id="overview" class="mb-16">
+          <h1 class="font-google-sans text-2xl sm:text-3xl md:text-4xl font-medium text-google-gray-900 mb-4">Domain Setup Guide</h1>
+          <p class="text-lg text-google-gray-600 mb-8">
+            Learn how to configure your custom domain for sending emails through Pathway.
+            This guide covers everything from adding your domain to configuring DNS records for optimal deliverability.
+          </p>
+
+          <div class="callout callout-info">
+            <div class="flex gap-3">
+              <svg class="w-6 h-6 text-google-blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+              </svg>
+              <div>
+                <p class="font-medium text-google-gray-800">Before you begin</p>
+                <p class="text-sm text-google-gray-600 mt-1">
+                  You'll need access to your domain's DNS settings. This is typically managed through your domain registrar
+                  (like GoDaddy, Namecheap) or DNS provider (like Cloudflare, Route 53).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Domain Configurator -->
+          <div id="domain-configurator" class="mt-10 p-6 bg-gradient-to-r from-google-blue/5 to-purple-500/5 border border-google-blue/20 rounded-xl">
+            <h3 class="font-google-sans text-xl font-medium text-google-gray-900 mb-2 flex items-center gap-2">
+              <svg class="w-6 h-6 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Get Started
+            </h3>
+            <p class="text-sm text-google-gray-600 mb-6">Enter your domain below to get a personalized setup guide.</p>
+
+            <div class="space-y-4">
+              <!-- Domain Input -->
+              <div>
+                <label class="block text-sm font-medium text-google-gray-700 mb-2">Your sending domain</label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input type="text" id="domain-input" placeholder="e.g., mail.yourdomain.com or yourdomain.com"
+                         class="flex-1 px-4 py-3 border border-google-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-google-blue focus:border-transparent">
+                  <button onclick="generateDnsRecords()"
+                          class="px-6 py-3 bg-google-blue text-white font-medium rounded-lg hover:bg-google-blue-hover transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Continue
+                  </button>
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2">
+                  <strong>Tip:</strong> Use a subdomain like <code class="bg-white px-1 rounded domain-placeholder-subdomain">mail.yourdomain.com</code> if you already have email on your root domain (e.g., Google Workspace).
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Domain Required Modal -->
+  <div id="domain-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="display: none;">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 transition-opacity" onclick="closeModal()"></div>
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-xl shadow-2xl overflow-hidden w-full max-w-md">
+        <div class="p-6">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-google-yellow/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-google-yellow" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-google-sans text-lg font-medium text-google-gray-900">Domain Required</h3>
+              <p class="text-sm text-google-gray-600 mt-1">
+                Please enter your domain name to continue with the setup guide.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-google-gray-50 flex justify-end">
+          <button onclick="closeModal()"
+                  class="px-4 py-2 bg-google-blue text-white text-sm font-medium rounded-lg hover:bg-google-blue-hover transition-colors">
+            Got it
+          </button>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal functions
+    function openModal() {
+      const modal = document.getElementById('domain-modal');
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('domain-modal');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+      // Focus on the input field after closing
+      document.getElementById('domain-input').focus();
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Redirects to appropriate setup page based on domain type
+    function generateDnsRecords() {
+      const input = document.getElementById('domain-input').value.trim().toLowerCase();
+
+      if (!input) {
+        openModal();
+        return;
+      }
+
+      // Remove any protocol prefix
+      let domain = input.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+      // Store the domain in localStorage for use across pages
+      localStorage.setItem('pathway_domain', domain);
+
+      // Parse the domain
+      const parts = domain.split('.');
+
+      // Determine if it's a subdomain (more than 2 parts, excluding common TLDs like .co.uk)
+      const commonTwoPartTlds = ['co.uk', 'com.au', 'co.nz', 'org.uk', 'net.au'];
+      let isSubdomain = false;
+
+      // Check if it ends with a two-part TLD
+      const lastTwoParts = parts.slice(-2).join('.');
+      const hasTwoPartTld = commonTwoPartTlds.includes(lastTwoParts);
+
+      if (hasTwoPartTld && parts.length > 3) {
+        isSubdomain = true;
+      } else if (!hasTwoPartTld && parts.length > 2) {
+        isSubdomain = true;
+      }
+
+      if (isSubdomain) {
+        // Redirect to the separate subdomain setup page with domain in URL
+        window.location.href = 'subdomain-setup.html?domain=' + encodeURIComponent(domain);
+      } else {
+        // Redirect to the separate root domain setup page with domain in URL
+        window.location.href = 'domain-setup.html?domain=' + encodeURIComponent(domain);
+      }
+    }
+
+    // Allow Enter key to trigger generation
+    document.addEventListener('DOMContentLoaded', function() {
+      const domainInput = document.getElementById('domain-input');
+      if (domainInput) {
+        domainInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            generateDnsRecords();
+          }
+        });
+      }
+    });
+
+    // Active nav highlighting on scroll
+    document.addEventListener('DOMContentLoaded', function() {
+      const sections = document.querySelectorAll('section[id]');
+      const navItems = document.querySelectorAll('.nav-item');
+
+      function highlightNav() {
+        const scrollPos = window.scrollY + 100;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          const sectionId = section.getAttribute('id');
+
+          if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+            navItems.forEach(item => {
+              item.classList.remove('active');
+              if (item.getAttribute('href') === '#' + sectionId) {
+                item.classList.add('active');
+              }
+            });
+          }
+        });
+      }
+
+      window.addEventListener('scroll', highlightNav);
+      highlightNav();
+    });
+  </script>
+</body>
+</html>
