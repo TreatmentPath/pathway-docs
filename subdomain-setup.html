@@ -370,7 +370,7 @@
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Enter your subdomain</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
-                  Enter your full subdomain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono">mail.yourdomain.com</code>)
+                  Enter your full subdomain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono domain-placeholder">mail.yourdomain.com</code>)
                   and click <strong>Register domain</strong>.
                 </p>
                 <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
@@ -386,7 +386,7 @@
                       <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                     </svg>
                     <p class="text-sm text-google-gray-700">
-                      <strong>Note:</strong> Enter the complete subdomain including the parent domain (e.g., <code class="bg-white px-1 rounded">mail.example.com</code>, not just <code class="bg-white px-1 rounded">mail</code>).
+                      <strong>Note:</strong> Enter the complete subdomain including the parent domain (e.g., <code class="bg-white px-1 rounded domain-placeholder">mail.example.com</code>, not just <code class="bg-white px-1 rounded">mail</code>).
                     </p>
                   </div>
                 </div>
@@ -493,7 +493,7 @@
                       <div>
                         <p class="text-sm font-medium text-google-gray-800">Enter the Name (hostname)</p>
                         <p class="text-xs text-google-gray-600 mt-1">
-                          For subdomain records, enter the subdomain prefix (e.g., <code class="bg-white px-1.5 py-0.5 rounded text-xs font-mono">mail</code> for <code class="bg-white px-1.5 py-0.5 rounded text-xs font-mono">mail.yourdomain.com</code>).
+                          For subdomain records, enter the subdomain prefix (e.g., <code class="bg-white px-1.5 py-0.5 rounded text-xs font-mono subdomain-prefix-placeholder">mail</code> for <code class="bg-white px-1.5 py-0.5 rounded text-xs font-mono domain-placeholder">mail.yourdomain.com</code>).
                           For DKIM, combine with the subdomain (e.g., <code class="bg-white px-1.5 py-0.5 rounded text-xs font-mono">treatmentpath._domainkey.mail</code>).
                         </p>
                       </div>
@@ -684,7 +684,7 @@
                 <div class="mt-4 p-4 bg-google-gray-50 rounded-lg border border-google-gray-200">
                   <p class="text-sm font-medium text-google-gray-800 mb-2">Inbound Email Address</p>
                   <p class="text-sm text-google-gray-600">
-                    Once configured, emails sent to <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200 text-sm font-mono">*@mail.yourdomain.com</code> will be parsed by Pathway.
+                    Once configured, emails sent to <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200 text-sm font-mono domain-placeholder-wildcard">*@mail.yourdomain.com</code> will be parsed by Pathway.
                     The wildcard (*) means any email address at your subdomain will be captured.
                   </p>
                 </div>
@@ -780,8 +780,68 @@
   </div>
 
   <script>
+    // Get domain from URL parameter or localStorage
+    function getDomain() {
+      // First try URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const domainParam = urlParams.get('domain');
+
+      if (domainParam) {
+        // Store in localStorage for future use
+        localStorage.setItem('pathway_domain', domainParam);
+        return domainParam;
+      }
+
+      // Fall back to localStorage
+      return localStorage.getItem('pathway_domain');
+    }
+
+    // Extract subdomain prefix from full domain
+    function getSubdomainPrefix(domain) {
+      const parts = domain.split('.');
+      // Common two-part TLDs
+      const commonTwoPartTlds = ['co.uk', 'com.au', 'co.nz', 'org.uk', 'net.au'];
+      const lastTwoParts = parts.slice(-2).join('.');
+      const hasTwoPartTld = commonTwoPartTlds.includes(lastTwoParts);
+
+      if (hasTwoPartTld && parts.length > 3) {
+        // e.g., mail.example.co.uk -> mail
+        return parts.slice(0, -3).join('.');
+      } else if (parts.length > 2) {
+        // e.g., mail.example.com -> mail
+        return parts.slice(0, -2).join('.');
+      }
+      return parts[0]; // Fallback to first part
+    }
+
+    // Replace domain placeholders throughout the page
+    function replaceDomainPlaceholders(domain) {
+      const subdomainPrefix = getSubdomainPrefix(domain);
+
+      // Replace full subdomain placeholders (e.g., mail.yourdomain.com)
+      document.querySelectorAll('.domain-placeholder').forEach(el => {
+        el.textContent = domain;
+      });
+
+      // Replace subdomain prefix placeholders (e.g., mail)
+      document.querySelectorAll('.subdomain-prefix-placeholder').forEach(el => {
+        el.textContent = subdomainPrefix;
+      });
+
+      // Replace wildcard email placeholders (e.g., *@mail.yourdomain.com)
+      document.querySelectorAll('.domain-placeholder-wildcard').forEach(el => {
+        el.textContent = '*@' + domain;
+      });
+    }
+
     // Active nav highlighting on scroll
     document.addEventListener('DOMContentLoaded', function() {
+      // Replace placeholders if domain is available
+      const domain = getDomain();
+      if (domain) {
+        replaceDomainPlaceholders(domain);
+      }
+
       const navItems = document.querySelectorAll('.nav-item');
 
       function highlightNav() {
