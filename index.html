@@ -89,7 +89,7 @@
     }
   </style>
 </head>
-<body class="font-roboto text-google-gray-800 bg-white">
+<body class="font-roboto text-google-gray-800 bg-white overflow-x-hidden">
   <!-- Top Navigation Bar -->
   <header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-google-gray-200 z-50 flex items-center px-4 md:px-6">
     <div class="flex items-center gap-2 md:gap-3">
@@ -139,12 +139,12 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="lg:ml-72 flex-1 min-h-screen">
-      <div class="max-w-4xl mx-auto px-8 py-12">
+    <main class="lg:ml-72 flex-1 min-h-screen overflow-x-hidden">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 py-8 md:py-12">
 
         <!-- Overview Section -->
         <section id="overview" class="mb-16">
-          <h1 class="font-google-sans text-4xl font-medium text-google-gray-900 mb-4">Domain Setup Guide</h1>
+          <h1 class="font-google-sans text-2xl sm:text-3xl md:text-4xl font-medium text-google-gray-900 mb-4">Domain Setup Guide</h1>
           <p class="text-lg text-google-gray-600 mb-8">
             Learn how to configure your custom domain for sending emails through Pathway.
             This guide covers everything from adding your domain to configuring DNS records for optimal deliverability.
@@ -180,11 +180,11 @@
               <!-- Domain Input -->
               <div>
                 <label class="block text-sm font-medium text-google-gray-700 mb-2">Your sending domain</label>
-                <div class="flex gap-3">
+                <div class="flex flex-col sm:flex-row gap-3">
                   <input type="text" id="domain-input" placeholder="e.g., mail.yourdomain.com or yourdomain.com"
                          class="flex-1 px-4 py-3 border border-google-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-google-blue focus:border-transparent">
                   <button onclick="generateDnsRecords()"
-                          class="px-6 py-3 bg-google-blue text-white font-medium rounded-lg hover:bg-google-blue-hover transition-colors flex items-center gap-2">
+                          class="px-6 py-3 bg-google-blue text-white font-medium rounded-lg hover:bg-google-blue-hover transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                     </svg>
@@ -204,13 +204,67 @@
     </main>
   </div>
 
+  <!-- Domain Required Modal -->
+  <div id="domain-modal" class="fixed inset-0 z-50 hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/50 transition-opacity" onclick="closeModal()"></div>
+    <!-- Modal Content -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md mx-4">
+      <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-start gap-4">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-google-yellow/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-google-yellow" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="font-google-sans text-lg font-medium text-google-gray-900">Domain Required</h3>
+              <p class="text-sm text-google-gray-600 mt-1">
+                Please enter your domain name to continue with the setup guide.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-google-gray-50 flex justify-end">
+          <button onclick="closeModal()"
+                  class="px-4 py-2 bg-google-blue text-white text-sm font-medium rounded-lg hover:bg-google-blue-hover transition-colors">
+            Got it
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Modal functions
+    function openModal() {
+      const modal = document.getElementById('domain-modal');
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('domain-modal');
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      // Focus on the input field after closing
+      document.getElementById('domain-input').focus();
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
     // Redirects to appropriate setup page based on domain type
     function generateDnsRecords() {
       const input = document.getElementById('domain-input').value.trim().toLowerCase();
 
       if (!input) {
-        alert('Please enter a domain name');
+        openModal();
         return;
       }
 
