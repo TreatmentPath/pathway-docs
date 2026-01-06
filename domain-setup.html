@@ -104,6 +104,7 @@
     .doc-table {
       border-collapse: collapse;
       width: 100%;
+      min-width: 500px;
     }
     .doc-table th,
     .doc-table td {
@@ -117,6 +118,17 @@
     }
     .doc-table tr:hover {
       background: #f8f9fa;
+    }
+
+    /* Responsive code blocks */
+    code {
+      word-break: break-word;
+    }
+
+    /* Responsive text wrapping */
+    .break-words {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     /* Step indicator */
@@ -305,7 +317,7 @@
             <!-- Step 1 -->
             <div id="step-1" class="flex gap-4">
               <div class="step-number">1</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Open Settings</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   Locate the <strong>Settings</strong> icon (gear icon) in the sidebar on the left side of your screen.
@@ -324,7 +336,7 @@
             <!-- Step 2 -->
             <div id="step-2" class="flex gap-4">
               <div class="step-number">2</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Navigate to Email Settings</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   Once in Settings, follow this navigation path to reach the Email Domains section:
@@ -347,7 +359,7 @@
             <!-- Step 3 -->
             <div id="step-3" class="flex gap-4">
               <div class="step-number">3</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Click "Add" to add your domain</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   In the <strong>Added Domains</strong> section, click the <strong>Add</strong> button (highlighted as step 4 in the screenshot above) to open the domain registration dialog.
@@ -358,7 +370,7 @@
             <!-- Step 4 -->
             <div id="step-4" class="flex gap-4">
               <div class="step-number">4</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Enter your domain name</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   Enter your domain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono domain-placeholder">yourdomain.com</code>)
@@ -377,7 +389,7 @@
             <!-- Step 5 -->
             <div id="step-5" class="flex gap-4">
               <div class="step-number">5</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Review your DNS records</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   After registering your domain, you'll be taken to the domain configuration page. Here you'll see all the DNS records
@@ -442,7 +454,7 @@
             <!-- Step 6 -->
             <div id="step-6" class="flex gap-4">
               <div class="step-number">6</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Add DNS records to your domain provider</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   Log in to your domain registrar or DNS provider (e.g., Cloudflare, GoDaddy, Namecheap) and add each of the DNS records shown in Pathway.
@@ -557,7 +569,7 @@
             <!-- Step 7 -->
             <div id="step-7" class="flex gap-4">
               <div class="step-number">7</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Verify your DNS records</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   After adding all DNS records, return to Pathway and click the <strong>Verify</strong> button next to each record.
@@ -613,7 +625,7 @@
             <!-- Step 8: Inbound Parse -->
             <div id="step-8" class="flex gap-4">
               <div class="step-number">8</div>
-              <div class="flex-1">
+              <div class="flex-1 min-w-0">
                 <h3 class="font-medium text-google-gray-800 mb-2">Set up Inbound Parse for receiving messages (Optional)</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
                   If you want to receive email replies from patients through Pathway, you'll need to configure an <strong>MX record</strong> for inbound email parsing.
