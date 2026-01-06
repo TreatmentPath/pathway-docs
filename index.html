@@ -557,16 +557,16 @@
                   </div>
                 </div>
 
-                <div class="callout callout-warning mt-6">
+                <div class="callout callout-info mt-6">
                   <div class="flex gap-3">
-                    <svg class="w-5 h-5 text-google-yellow flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    <svg class="w-5 h-5 text-google-blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                     </svg>
                     <div>
-                      <p class="font-medium text-google-gray-800">Important: Leave TTL as Auto</p>
+                      <p class="font-medium text-google-gray-800">Recommended: Use the shortest TTL available</p>
                       <p class="text-sm text-google-gray-600 mt-1">
-                        In Cloudflare, the TTL (Time To Live) setting defaults to <strong>Auto</strong>, which is the recommended setting.
-                        Other providers may ask you to set a value — use <strong>3600</strong> (1 hour) or the default if unsure.
+                        We recommend setting TTL (Time To Live) to the <strong>shortest value available</strong> — typically <strong>60 seconds</strong> (1 minute) or <strong>300 seconds</strong> (5 minutes).
+                        A shorter TTL allows DNS changes to propagate faster, making verification and troubleshooting quicker. In Cloudflare, you can leave it as <strong>Auto</strong> which uses a short TTL by default.
                       </p>
                     </div>
                   </div>
