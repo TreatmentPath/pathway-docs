@@ -172,49 +172,51 @@
           </li>
         </ul>
 
-        <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Domain Setup</h3>
-        <ul class="space-y-1">
-          <li>
-            <a href="#step-1" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              1. Open Settings
-            </a>
-          </li>
-          <li>
-            <a href="#step-2" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              2. Navigate to Email Settings
-            </a>
-          </li>
-          <li>
-            <a href="#step-3" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              3. Click "Add" to add domain
-            </a>
-          </li>
-          <li>
-            <a href="#step-4" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              4. Enter your domain name
-            </a>
-          </li>
-          <li>
-            <a href="#step-5" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              5. Review DNS records
-            </a>
-          </li>
-          <li>
-            <a href="#step-6" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              6. Add DNS records
-            </a>
-          </li>
-          <li>
-            <a href="#step-7" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              7. Verify DNS records
-            </a>
-          </li>
-          <li>
-            <a href="#step-8" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
-              8. Set up Inbound Parse
-            </a>
-          </li>
-        </ul>
+        <div id="sidebar-domain-setup" class="hidden">
+          <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Domain Setup</h3>
+          <ul class="space-y-1">
+            <li>
+              <a href="#step-1" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                1. Open Settings
+              </a>
+            </li>
+            <li>
+              <a href="#step-2" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                2. Navigate to Email Settings
+              </a>
+            </li>
+            <li>
+              <a href="#step-3" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                3. Click "Add" to add domain
+              </a>
+            </li>
+            <li>
+              <a href="#step-4" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                4. Enter your domain name
+              </a>
+            </li>
+            <li>
+              <a href="#step-5" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                5. Review DNS records
+              </a>
+            </li>
+            <li>
+              <a href="#step-6" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                6. Add DNS records
+              </a>
+            </li>
+            <li>
+              <a href="#step-7" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                7. Verify DNS records
+              </a>
+            </li>
+            <li>
+              <a href="#step-8" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
+                8. Set up Inbound Parse
+              </a>
+            </li>
+          </ul>
+        </div>
 
         <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Troubleshooting</h3>
         <ul class="space-y-1">
@@ -874,6 +876,8 @@
         // Show root domain flow (Prerequisites and Add Domain sections)
         document.getElementById('prerequisites').classList.remove('hidden');
         document.getElementById('add-domain').classList.remove('hidden');
+        // Show the sidebar Domain Setup steps
+        document.getElementById('sidebar-domain-setup').classList.remove('hidden');
         document.getElementById('what-youll-setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
