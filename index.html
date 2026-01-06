@@ -327,19 +327,41 @@
       <section>
         <div class="bg-gradient-to-r from-google-blue/5 to-purple-500/5 border border-google-blue/20 rounded-xl p-6 md:p-8">
           <div class="flex flex-col md:flex-row items-center gap-6">
-            <div class="w-16 h-16 rounded-full bg-white border border-google-gray-200 flex items-center justify-center flex-shrink-0">
-              <svg class="w-8 h-8 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <!-- Help Illustration -->
+            <div class="w-20 h-20 flex-shrink-0">
+              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                <!-- Background circle -->
+                <circle cx="40" cy="40" r="38" fill="#E8F0FE"/>
+                <!-- Person/Support agent -->
+                <circle cx="40" cy="30" r="10" fill="#1a73e8"/>
+                <path d="M22 58C22 48 30 42 40 42C50 42 58 48 58 58" fill="#1a73e8"/>
+                <!-- Headset -->
+                <path d="M26 30C26 22 32 16 40 16C48 16 54 22 54 30" stroke="#1557b0" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <rect x="22" y="26" width="6" height="10" rx="2" fill="#1557b0"/>
+                <rect x="52" y="26" width="6" height="10" rx="2" fill="#1557b0"/>
+                <!-- Microphone -->
+                <path d="M54 36C54 36 58 38 58 42" stroke="#1557b0" stroke-width="2" stroke-linecap="round"/>
+                <!-- Speech bubble -->
+                <circle cx="60" cy="20" r="10" fill="white" stroke="#1a73e8" stroke-width="2"/>
+                <text x="60" y="24" text-anchor="middle" fill="#1a73e8" font-size="12" font-weight="bold">?</text>
+                <!-- Sparkles -->
+                <circle cx="18" cy="50" r="2" fill="#1a73e8" opacity="0.5"/>
+                <circle cx="64" cy="54" r="2.5" fill="#1a73e8" opacity="0.4"/>
               </svg>
             </div>
-            <div class="text-center md:text-left">
+            <div class="text-center md:text-left flex-1">
               <h3 class="font-google-sans text-xl font-medium text-google-gray-900 mb-2">Need Help?</h3>
-              <p class="text-google-gray-600 mb-4">Can't find what you're looking for? Our support team is here to help.</p>
-              <a href="mailto:support@pathway.dental" class="inline-flex items-center gap-2 px-5 py-2.5 bg-google-blue text-white font-medium rounded-lg hover:bg-google-blue-hover transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              <p class="text-google-gray-600 mb-5">Can't find what you're looking for? Our support team is here to help.</p>
+              <a href="mailto:support@pathway.dental" class="group inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-google-blue to-blue-600 text-white font-medium rounded-xl hover:from-google-blue-hover hover:to-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <span class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                  </svg>
+                </span>
+                <span>Contact Support</span>
+                <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
-                Contact Support
               </a>
             </div>
           </div>
