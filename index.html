@@ -892,24 +892,47 @@
 
     // Active nav highlighting on scroll
     document.addEventListener('DOMContentLoaded', function() {
-      const sections = document.querySelectorAll('section[id]');
       const navItems = document.querySelectorAll('.nav-item');
 
       function highlightNav() {
-        const scrollPos = window.scrollY + 100;
+        const scrollPos = window.scrollY + 120;
+        let activeId = null;
 
-        sections.forEach(section => {
-          const top = section.offsetTop;
-          const height = section.offsetHeight;
-          const id = section.getAttribute('id');
+        // Get all elements that can be highlighted (sections and steps)
+        const allTargets = document.querySelectorAll('section[id], div[id^="step-"]');
+
+        // Find the current active element
+        allTargets.forEach(el => {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          const id = el.getAttribute('id');
 
           if (scrollPos >= top && scrollPos < top + height) {
-            navItems.forEach(item => {
-              item.classList.remove('active');
-              if (item.getAttribute('href') === '#' + id) {
-                item.classList.add('active');
-              }
-            });
+            activeId = id;
+          }
+        });
+
+        // If we're scrolling past all steps but still in add-domain, find the last visible step
+        if (!activeId) {
+          const visibleSteps = Array.from(document.querySelectorAll('div[id^="step-"]')).filter(el => {
+            return el.offsetParent !== null; // Check if visible
+          });
+
+          for (let i = visibleSteps.length - 1; i >= 0; i--) {
+            const step = visibleSteps[i];
+            if (scrollPos >= step.offsetTop) {
+              activeId = step.getAttribute('id');
+              break;
+            }
+          }
+        }
+
+        // Update nav items
+        navItems.forEach(item => {
+          item.classList.remove('active');
+          const href = item.getAttribute('href');
+          if (href && activeId && href === '#' + activeId) {
+            item.classList.add('active');
           }
         });
       }
