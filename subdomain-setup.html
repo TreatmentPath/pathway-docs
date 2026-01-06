@@ -517,6 +517,50 @@
                   </div>
                 </div>
 
+                <p class="text-sm text-google-gray-600 mt-6 mb-4">
+                  Here are examples of adding DNS records for a subdomain in Cloudflare:
+                </p>
+
+                <!-- Verification Record Example -->
+                <p class="text-sm text-google-gray-700 font-medium mt-4 mb-2">Adding the Verification Record:</p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-06 19-13-24.png"
+                       alt="Cloudflare DNS interface showing how to add a verification TXT record for subdomain" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 italic">
+                  For the verification record: (1) Click Records, (2) Select TXT type, (3) Enter your subdomain (e.g., <code class="bg-white px-1 rounded">app</code>), (4) Paste the verification value, and (5) Click Save.
+                </p>
+
+                <!-- SPF Record Example -->
+                <p class="text-sm text-google-gray-700 font-medium mt-6 mb-2">Adding the SPF Record:</p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-06 19-15-14.png"
+                       alt="Cloudflare DNS interface showing how to add an SPF TXT record for subdomain" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 italic">
+                  For the SPF record: (1) Click Records, (2) Select TXT type, (3) Enter your subdomain (e.g., <code class="bg-white px-1 rounded">app</code>), (4) Paste the SPF value, and (5) Click Save.
+                </p>
+
+                <!-- DKIM Record Example -->
+                <p class="text-sm text-google-gray-700 font-medium mt-6 mb-2">Adding the DKIM Record:</p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-06 19-15-53.png"
+                       alt="Cloudflare DNS interface showing how to add a DKIM TXT record for subdomain" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 italic">
+                  For the DKIM record: (1) Click Records, (2) Select TXT type, (3) Enter <code class="bg-white px-1 rounded">treatmentpath._domainkey.app</code> (combining the DKIM selector with your subdomain), (4) Paste the DKIM value, and (5) Click Save.
+                </p>
+
+                <!-- DMARC Record Example -->
+                <p class="text-sm text-google-gray-700 font-medium mt-6 mb-2">Adding the DMARC Record:</p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-06 19-16-39.png"
+                       alt="Cloudflare DNS interface showing how to add a DMARC TXT record for subdomain" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 italic">
+                  For the DMARC record: (1) Click Records, (2) Select TXT type, (3) Enter <code class="bg-white px-1 rounded">_dmarc.app</code> (combining _dmarc with your subdomain), (4) Paste the DMARC value, and (5) Click Save.
+                </p>
+
                 <div class="callout callout-warning mt-6">
                   <div class="flex gap-3">
                     <svg class="w-5 h-5 text-google-yellow flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
