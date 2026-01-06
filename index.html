@@ -170,20 +170,22 @@
             </a>
 
             <!-- SMS Setup -->
-            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 opacity-60 cursor-not-allowed">
+            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 cursor-not-allowed">
               <div class="flex items-start gap-4">
                 <div class="w-12 h-12 flex-shrink-0">
                   <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                     <!-- Phone body -->
-                    <rect x="14" y="4" width="20" height="40" rx="4" fill="#F1F3F4" stroke="#9AA0A6" stroke-width="2"/>
+                    <rect x="14" y="4" width="20" height="40" rx="4" fill="#F3E8FD" stroke="#9334E6" stroke-width="2"/>
                     <!-- Screen -->
                     <rect x="17" y="10" width="14" height="24" rx="1" fill="white"/>
                     <!-- Home button -->
-                    <circle cx="24" cy="40" r="2" fill="#9AA0A6"/>
-                    <!-- Message bubbles -->
-                    <rect x="19" y="13" width="8" height="4" rx="2" fill="#DADCE0"/>
-                    <rect x="21" y="19" width="8" height="4" rx="2" fill="#DADCE0"/>
-                    <rect x="19" y="25" width="6" height="4" rx="2" fill="#DADCE0"/>
+                    <circle cx="24" cy="40" r="2" fill="#9334E6"/>
+                    <!-- Message bubbles - more vibrant -->
+                    <rect x="19" y="13" width="8" height="4" rx="2" fill="#9334E6"/>
+                    <rect x="21" y="19" width="8" height="4" rx="2" fill="#AB47BC"/>
+                    <rect x="19" y="25" width="6" height="4" rx="2" fill="#7B1FA2"/>
+                    <!-- Notification dot -->
+                    <circle cx="32" cy="8" r="4" fill="#9334E6" stroke="white" stroke-width="1.5"/>
                   </svg>
                 </div>
                 <div class="min-w-0">
@@ -230,18 +232,23 @@
 
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <!-- Webhook Setup -->
-            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 opacity-60 cursor-not-allowed">
+            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 cursor-not-allowed">
               <div class="flex items-start gap-4">
                 <div class="w-12 h-12 flex-shrink-0">
                   <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                    <!-- Background glow -->
+                    <circle cx="24" cy="24" r="20" fill="#FEF3E8"/>
                     <!-- Hook shape -->
-                    <path d="M12 20C12 14 17 10 24 10C31 10 36 14 36 20V28" stroke="#9AA0A6" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <circle cx="36" cy="32" r="4" fill="#DADCE0" stroke="#9AA0A6" stroke-width="2"/>
+                    <path d="M12 20C12 14 17 10 24 10C31 10 36 14 36 20V28" stroke="#E8710A" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    <circle cx="36" cy="32" r="5" fill="#E8710A"/>
                     <!-- Arrow indicators -->
-                    <path d="M8 28L12 32L16 28" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M8 36L12 40L16 36" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 26L12 30L16 26" stroke="#F57C00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 34L12 38L16 34" stroke="#E8710A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                     <!-- Connection dot -->
-                    <circle cx="24" cy="10" r="3" fill="#9AA0A6"/>
+                    <circle cx="24" cy="10" r="4" fill="#FF9800"/>
+                    <!-- Signal lines -->
+                    <path d="M40 28L44 28" stroke="#E8710A" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M40 32L42 32" stroke="#E8710A" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </div>
                 <div class="min-w-0">
@@ -255,19 +262,22 @@
             </div>
 
             <!-- Webform Forwarding -->
-            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 opacity-60 cursor-not-allowed">
+            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 cursor-not-allowed">
               <div class="flex items-start gap-4">
                 <div class="w-12 h-12 flex-shrink-0">
                   <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                     <!-- Form/Document -->
-                    <rect x="8" y="6" width="24" height="36" rx="2" fill="#F1F3F4" stroke="#9AA0A6" stroke-width="2"/>
-                    <!-- Form fields -->
-                    <rect x="12" y="12" width="16" height="3" rx="1" fill="#DADCE0"/>
-                    <rect x="12" y="18" width="12" height="3" rx="1" fill="#DADCE0"/>
-                    <rect x="12" y="24" width="14" height="3" rx="1" fill="#DADCE0"/>
-                    <rect x="12" y="32" width="8" height="6" rx="1" fill="#DADCE0"/>
-                    <!-- Forward arrow -->
-                    <path d="M34 24L42 24M42 24L38 20M42 24L38 28" stroke="#9AA0A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="8" y="6" width="24" height="36" rx="2" fill="#E0F7F6" stroke="#00897B" stroke-width="2"/>
+                    <!-- Form fields - vibrant -->
+                    <rect x="12" y="12" width="16" height="3" rx="1" fill="#00897B"/>
+                    <rect x="12" y="18" width="12" height="3" rx="1" fill="#26A69A"/>
+                    <rect x="12" y="24" width="14" height="3" rx="1" fill="#4DB6AC"/>
+                    <!-- Submit button -->
+                    <rect x="12" y="32" width="10" height="6" rx="2" fill="#00897B"/>
+                    <path d="M15 35L19 35" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                    <!-- Forward arrow - more prominent -->
+                    <circle cx="40" cy="24" r="6" fill="#00897B"/>
+                    <path d="M38 24L42 24M42 24L40 22M42 24L40 26" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
                 <div class="min-w-0">
@@ -281,20 +291,23 @@
             </div>
 
             <!-- Invoice Address Setup -->
-            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 opacity-60 cursor-not-allowed">
+            <div class="doc-card block p-5 bg-google-gray-50 rounded-lg border border-google-gray-200 cursor-not-allowed">
               <div class="flex items-start gap-4">
                 <div class="w-12 h-12 flex-shrink-0">
                   <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                     <!-- Receipt/Invoice -->
-                    <path d="M10 8H38V40L34 37L30 40L26 37L22 40L18 37L14 40L10 37V8Z" fill="#F1F3F4" stroke="#9AA0A6" stroke-width="2" stroke-linejoin="round"/>
-                    <!-- Dollar sign -->
-                    <circle cx="24" cy="18" r="6" fill="#DADCE0"/>
-                    <path d="M24 14V22M22 16H26M22 20H26" stroke="#9AA0A6" stroke-width="1.5" stroke-linecap="round"/>
-                    <!-- Line items -->
-                    <rect x="14" y="28" width="12" height="2" rx="1" fill="#DADCE0"/>
-                    <rect x="30" y="28" width="4" height="2" rx="1" fill="#DADCE0"/>
-                    <rect x="14" y="32" width="10" height="2" rx="1" fill="#DADCE0"/>
-                    <rect x="30" y="32" width="4" height="2" rx="1" fill="#DADCE0"/>
+                    <path d="M10 8H38V40L34 37L30 40L26 37L22 40L18 37L14 40L10 37V8Z" fill="#FEF7E0" stroke="#F9AB00" stroke-width="2" stroke-linejoin="round"/>
+                    <!-- Dollar sign circle -->
+                    <circle cx="24" cy="17" r="7" fill="#F9AB00"/>
+                    <text x="24" y="21" text-anchor="middle" fill="white" font-size="10" font-weight="bold">$</text>
+                    <!-- Line items - vibrant -->
+                    <rect x="14" y="28" width="12" height="2" rx="1" fill="#FFB300"/>
+                    <rect x="30" y="28" width="4" height="2" rx="1" fill="#F9AB00"/>
+                    <rect x="14" y="32" width="10" height="2" rx="1" fill="#FFC107"/>
+                    <rect x="30" y="32" width="4" height="2" rx="1" fill="#F9AB00"/>
+                    <!-- Checkmark badge -->
+                    <circle cx="36" cy="12" r="5" fill="#F9AB00" stroke="white" stroke-width="1.5"/>
+                    <path d="M34 12L35.5 13.5L38 11" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
                 <div class="min-w-0">
