@@ -631,6 +631,154 @@
                 </div>
               </div>
             </div>
+
+            <!-- Step 8: Inbound Parse -->
+            <div class="flex gap-4">
+              <div class="step-number">8</div>
+              <div class="flex-1">
+                <h3 class="font-medium text-google-gray-800 mb-2">Set up Inbound Parse for receiving messages (Optional)</h3>
+                <p class="text-sm text-google-gray-600 mb-4">
+                  If you want to receive email replies from patients through TreatmentPath, you'll need to configure an <strong>MX record</strong> for inbound email parsing.
+                  This allows TreatmentPath to process incoming emails sent to your domain.
+                </p>
+
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-05 21-17-35.png"
+                       alt="Inbound Parse MX Record configuration showing record type, priority, hostname, value, and check button" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 italic">
+                  The Inbound Parse section shows the MX record details needed to receive emails. The numbered areas highlight the key fields.
+                </p>
+
+                <div class="mt-6 space-y-4">
+                  <p class="text-sm text-google-gray-700 font-medium">Add the following MX record to your DNS provider:</p>
+
+                  <div class="overflow-x-auto">
+                    <table class="doc-table">
+                      <thead>
+                        <tr>
+                          <th>Field</th>
+                          <th>Value</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="font-medium">Record Type</td>
+                          <td><span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-sm font-medium">MX</span></td>
+                          <td class="text-sm text-google-gray-600">Mail Exchange record for routing emails</td>
+                        </tr>
+                        <tr>
+                          <td class="font-medium">Priority</td>
+                          <td><code class="font-mono text-sm">10</code></td>
+                          <td class="text-sm text-google-gray-600">Lower number = higher priority</td>
+                        </tr>
+                        <tr>
+                          <td class="font-medium">Hostname</td>
+                          <td><code class="font-mono text-sm">@</code></td>
+                          <td class="text-sm text-google-gray-600">Root domain (or subdomain if using one)</td>
+                        </tr>
+                        <tr>
+                          <td class="font-medium">Value</td>
+                          <td><code class="font-mono text-sm">mail.pathway.dental</code></td>
+                          <td class="text-sm text-google-gray-600">TreatmentPath's mail server</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-google-gray-50 rounded-lg border border-google-gray-200">
+                  <p class="text-sm font-medium text-google-gray-800 mb-2">Inbound Email Address</p>
+                  <p class="text-sm text-google-gray-600">
+                    Once configured, emails sent to <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200 text-sm font-mono">*@yourdomain.com</code> will be parsed by TreatmentPath.
+                    The wildcard (*) means any email address at your domain will be captured.
+                  </p>
+                </div>
+
+                <div class="mt-4 space-y-3">
+                  <p class="text-sm text-google-gray-700 font-medium">To verify your MX record:</p>
+                  <ol class="text-sm text-google-gray-600 space-y-2 list-decimal list-inside">
+                    <li>Add the MX record to your DNS provider (same process as TXT records)</li>
+                    <li>Wait for DNS propagation (usually a few minutes with short TTL)</li>
+                    <li>Click the <strong>Check MX Record</strong> button in TreatmentPath to verify</li>
+                  </ol>
+                </div>
+
+                <div class="callout callout-warning mt-4">
+                  <div class="flex gap-3">
+                    <svg class="w-5 h-5 text-google-yellow flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                    <div>
+                      <p class="font-medium text-google-gray-800">Important: Existing MX Records</p>
+                      <p class="text-sm text-google-gray-600 mt-1">
+                        If you already have MX records (e.g., for Google Workspace or Microsoft 365), adding this record may affect your existing email routing.
+                        Consider using a <strong>subdomain</strong> for TreatmentPath to avoid conflicts with your primary email service.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Alternative: Inbox Routing Addresses -->
+                <div class="mt-6 p-5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 class="font-medium text-google-gray-800 mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Alternative: Use Inbox Routing Addresses
+                  </h4>
+                  <p class="text-sm text-google-gray-600 mb-4">
+                    If you don't want to modify your MX records (to keep Google Workspace, Microsoft 365, or other email services intact),
+                    you can use <strong>Inbox Routing Addresses</strong> instead. This creates unique TreatmentPath email addresses that forward to your inbox without changing your DNS.
+                  </p>
+
+                  <div class="bg-white rounded-lg p-4 border border-blue-100">
+                    <img src="assets/Screenshot From 2026-01-05 21-23-58.png"
+                         alt="Inbox Routing Addresses section showing Create Address button" class="w-full rounded shadow-sm">
+                  </div>
+                  <p class="text-xs text-google-gray-500 mt-2 italic">
+                    The Inbox Routing Addresses section lets you create unique email addresses for routing messages without modifying MX records.
+                  </p>
+
+                  <div class="mt-4 space-y-2">
+                    <p class="text-sm text-google-gray-700 font-medium">How to set up routing addresses:</p>
+                    <ol class="text-sm text-google-gray-600 space-y-1 list-decimal list-inside">
+                      <li>Navigate to <strong>Settings → Practice → Communication → Email</strong></li>
+                      <li>Scroll down to the <strong>Inbox Routing Addresses</strong> section</li>
+                      <li>Click <strong>Create Address</strong> to generate a unique routing email</li>
+                      <li>Select the routing address in the <strong>Reply-To Emails</strong> section (see below)</li>
+                    </ol>
+                  </div>
+
+                  <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p class="text-sm font-medium text-google-gray-800 mb-3 flex items-center gap-2">
+                      <svg class="w-5 h-5 text-amber-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                      </svg>
+                      Important: Enable the Reply-To address
+                    </p>
+                    <p class="text-sm text-google-gray-600 mb-3">
+                      For inbox routing to work, you must select your routing address in the <strong>Reply-To Emails</strong> section.
+                      This ensures patient replies are directed to TreatmentPath's inbox.
+                    </p>
+                    <div class="bg-white rounded-lg p-3 border border-amber-100">
+                      <img src="assets/image.png"
+                           alt="Reply-To Emails section showing routing address selected with Inbox label" class="w-full rounded shadow-sm">
+                    </div>
+                    <p class="text-xs text-google-gray-500 mt-2 italic">
+                      Select your routing address in the Reply-To Emails section. The selected address will show an "Inbox" label indicating it's configured for routing.
+                    </p>
+                  </div>
+
+                  <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-sm text-google-gray-700">
+                      <span class="text-google-green font-medium">✓ No DNS changes required</span> — Keep your existing email setup while still receiving patient replies through TreatmentPath.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
