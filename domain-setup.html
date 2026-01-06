@@ -557,14 +557,21 @@
                   DNS changes can take anywhere from a few minutes to 48 hours to propagate, so if verification fails initially, wait and try again later.
                 </p>
 
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200 mb-4">
+                  <img src="assets/Screenshot From 2026-01-06 20-55-55.png"
+                       alt="Pathway verification page showing all DNS records verified for pathway.dental" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2 mb-4 italic">
+                  Once all your DNS records are properly configured, the verification page will show green checkmarks next to each record type (Verification Record, SPF, DKIM, and DMARC).
+                </p>
+
                 <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
-                  <img src="assets/Screenshot From 2026-01-05 21-17-28.png"
-                       alt="Pathway domain configuration page showing verified DKIM and DMARC records with green checkmarks" class="w-full rounded shadow-sm">
+                  <img src="assets/Screenshot From 2026-01-06 20-56-58.png"
+                       alt="Pathway verification page showing SPF, DKIM, and DMARC record details with verified status" class="w-full rounded shadow-sm">
                 </div>
                 <p class="text-xs text-google-gray-500 mt-2 italic">
                   Successfully verified records display a green <span class="text-google-green font-medium">✓ Verified</span> badge next to the record name.
-                  Records that haven't been verified yet will show a <strong>Verify</strong> button you can click to check the status.
-                </p>
+                  Each record section shows the expected values that were found in your DNS configuration.</p>
 
                 <div class="mt-4 space-y-3">
                   <p class="text-sm text-google-gray-700 font-medium">What each status means:</p>
