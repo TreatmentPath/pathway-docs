@@ -165,7 +165,7 @@
               Overview
             </a>
           </li>
-          <li>
+          <li id="sidebar-prerequisites" class="hidden">
             <a href="#prerequisites" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors">
               Prerequisites
             </a>
@@ -288,7 +288,7 @@
                   </button>
                 </div>
                 <p class="text-xs text-google-gray-500 mt-2">
-                  <strong>Tip:</strong> Use a subdomain like <code class="bg-white px-1 rounded">mail.yourdomain.com</code> if you already have email on your root domain (e.g., Google Workspace).
+                  <strong>Tip:</strong> Use a subdomain like <code class="bg-white px-1 rounded domain-placeholder-subdomain">mail.yourdomain.com</code> if you already have email on your root domain (e.g., Google Workspace).
                 </p>
               </div>
             </div>
@@ -447,7 +447,7 @@
               <div class="flex-1">
                 <h3 class="font-medium text-google-gray-800 mb-2">Enter your domain name</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
-                  Enter your domain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono">yourdomain.com</code>)
+                  Enter your domain (e.g., <code class="bg-google-gray-100 px-2 py-0.5 rounded text-sm font-mono domain-placeholder">yourdomain.com</code>)
                   and click <strong>Register domain</strong>.
                 </p>
                 <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
@@ -748,7 +748,7 @@
                 <div class="mt-4 p-4 bg-google-gray-50 rounded-lg border border-google-gray-200">
                   <p class="text-sm font-medium text-google-gray-800 mb-2">Inbound Email Address</p>
                   <p class="text-sm text-google-gray-600">
-                    Once configured, emails sent to <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200 text-sm font-mono">*@yourdomain.com</code> will be parsed by Pathway.
+                    Once configured, emails sent to <code class="bg-white px-1.5 py-0.5 rounded border border-google-gray-200 text-sm font-mono domain-placeholder-wildcard">*@yourdomain.com</code> will be parsed by Pathway.
                     The wildcard (*) means any email address at your domain will be captured.
                   </p>
                 </div>
@@ -878,6 +878,9 @@
       // Remove any protocol prefix
       let domain = input.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
+      // Store the domain in localStorage for use across pages
+      localStorage.setItem('pathway_domain', domain);
+
       // Parse the domain
       const parts = domain.split('.');
 
@@ -904,16 +907,39 @@
       document.getElementById('what-youll-setup').classList.remove('hidden');
 
       if (isSubdomain) {
-        // Redirect to the separate subdomain setup page
-        window.location.href = 'subdomain-setup.html';
+        // Redirect to the separate subdomain setup page with domain in URL
+        window.location.href = 'subdomain-setup.html?domain=' + encodeURIComponent(domain);
       } else {
         // Show root domain flow (Prerequisites and Add Domain sections)
         document.getElementById('prerequisites').classList.remove('hidden');
         document.getElementById('add-domain').classList.remove('hidden');
-        // Show the sidebar Domain Setup steps
+        // Show the sidebar Prerequisites and Domain Setup steps
+        document.getElementById('sidebar-prerequisites').classList.remove('hidden');
         document.getElementById('sidebar-domain-setup').classList.remove('hidden');
+
+        // Replace all domain placeholders with the user's domain
+        replaceDomainPlaceholders(domain);
+
         document.getElementById('what-youll-setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    }
+
+    // Replace domain placeholders throughout the page
+    function replaceDomainPlaceholders(domain) {
+      // Replace root domain placeholders
+      document.querySelectorAll('.domain-placeholder').forEach(el => {
+        el.textContent = domain;
+      });
+
+      // Replace subdomain example placeholders (e.g., mail.yourdomain.com)
+      document.querySelectorAll('.domain-placeholder-subdomain').forEach(el => {
+        el.textContent = 'mail.' + domain;
+      });
+
+      // Replace wildcard email placeholders (e.g., *@yourdomain.com)
+      document.querySelectorAll('.domain-placeholder-wildcard').forEach(el => {
+        el.textContent = '*@' + domain;
+      });
     }
 
     // Allow Enter key to trigger generation
