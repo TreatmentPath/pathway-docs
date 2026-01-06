@@ -432,11 +432,48 @@
             <div class="flex gap-4">
               <div class="step-number">5</div>
               <div class="flex-1">
-                <h3 class="font-medium text-google-gray-800 mb-2">Copy DNS records</h3>
+                <h3 class="font-medium text-google-gray-800 mb-2">Review your DNS records</h3>
                 <p class="text-sm text-google-gray-600 mb-4">
-                  After adding your domain, TreatmentPath will display the DNS records you need to add.
-                  Keep this page open or copy these records for the next step.
+                  After registering your domain, you'll be taken to the domain configuration page. Here you'll see all the DNS records
+                  that need to be added to your domain provider. Your domain will show a <span class="bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded text-xs font-medium">pending</span> status until verification is complete.
                 </p>
+                <div class="bg-google-gray-100 rounded-lg p-4 border border-google-gray-200">
+                  <img src="assets/Screenshot From 2026-01-05 21-04-52.png"
+                       alt="Domain configuration page showing verification record with hostname, value, and verify button" class="w-full rounded shadow-sm">
+                </div>
+                <p class="text-xs text-google-gray-500 mt-3 italic">
+                  The domain configuration page displays all required DNS records. The highlighted areas show:
+                  (1) Hostname - the DNS record name, (2) Value - the record content to copy, and (3) Verify button - click after adding records.
+                </p>
+
+                <div class="mt-4 space-y-3">
+                  <p class="text-sm text-google-gray-700 font-medium">This page displays three types of records:</p>
+                  <ul class="text-sm text-google-gray-600 space-y-2">
+                    <li class="flex items-start gap-2">
+                      <span class="bg-blue-100 text-google-blue px-2 py-0.5 rounded text-xs font-medium mt-0.5">TXT</span>
+                      <span><strong>Verification Record</strong> — Proves you own this domain. Add this first.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                      <span class="bg-blue-100 text-google-blue px-2 py-0.5 rounded text-xs font-medium mt-0.5">TXT</span>
+                      <span><strong>SPF Record</strong> — Authorizes TreatmentPath to send emails on your behalf.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                      <span class="bg-green-100 text-google-green px-2 py-0.5 rounded text-xs font-medium mt-0.5">CNAME</span>
+                      <span><strong>DKIM Records</strong> — Adds a digital signature to authenticate your emails.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="callout callout-info mt-4">
+                  <div class="flex gap-3">
+                    <svg class="w-5 h-5 text-google-blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                    <p class="text-sm text-google-gray-700">
+                      <strong>Tip:</strong> Use the copy button <span class="inline-flex items-center justify-center w-5 h-5 bg-white border border-google-gray-300 rounded text-xs">📋</span> next to each value to copy it to your clipboard. Keep this page open while you configure your DNS settings.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
