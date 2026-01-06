@@ -172,6 +172,14 @@
               Prerequisites
             </a>
           </li>
+          <li>
+            <a href="#domain-configurator" class="nav-item block px-3 py-2 text-sm rounded-l-full hover:bg-google-gray-100 transition-colors flex items-center gap-2">
+              <svg class="w-4 h-4 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              DNS Generator
+            </a>
+          </li>
         </ul>
 
         <h3 class="text-xs font-medium text-google-gray-500 uppercase tracking-wider mb-3 px-3 mt-8">Domain Setup</h3>
@@ -318,10 +326,102 @@
               <p class="text-sm text-google-gray-600">Define how receiving servers handle authentication failures.</p>
             </div>
           </div>
+
+          <!-- Interactive Domain Configurator -->
+          <div id="domain-configurator" class="mt-10 p-6 bg-gradient-to-r from-google-blue/5 to-purple-500/5 border border-google-blue/20 rounded-xl">
+            <h3 class="font-google-sans text-xl font-medium text-google-gray-900 mb-2 flex items-center gap-2">
+              <svg class="w-6 h-6 text-google-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              DNS Record Generator
+            </h3>
+            <p class="text-sm text-google-gray-600 mb-6">Enter your domain below to get customized DNS record instructions.</p>
+
+            <div class="space-y-4">
+              <!-- Domain Input -->
+              <div>
+                <label class="block text-sm font-medium text-google-gray-700 mb-2">Your sending domain</label>
+                <div class="flex gap-3">
+                  <input type="text" id="domain-input" placeholder="e.g., mail.yourdomain.com or yourdomain.com"
+                         class="flex-1 px-4 py-3 border border-google-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-google-blue focus:border-transparent">
+                  <button onclick="generateDnsRecords()"
+                          class="px-6 py-3 bg-google-blue text-white font-medium rounded-lg hover:bg-google-blue-hover transition-colors flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Generate Records
+                  </button>
+                </div>
+                <p class="text-xs text-google-gray-500 mt-2">
+                  <strong>Tip:</strong> Use a subdomain like <code class="bg-white px-1 rounded">mail.yourdomain.com</code> if you already have email on your root domain (e.g., Google Workspace).
+                </p>
+              </div>
+
+              <!-- Domain Type Detection -->
+              <div id="domain-type-indicator" class="hidden">
+                <div id="subdomain-indicator" class="hidden p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded">SUBDOMAIN</span>
+                    <span class="font-medium text-google-gray-800" id="detected-domain"></span>
+                  </div>
+                  <p class="text-sm text-google-gray-600">
+                    You're setting up a subdomain. Your emails will be sent from addresses like <code id="subdomain-email-example" class="bg-white px-1.5 py-0.5 rounded text-xs"></code>
+                  </p>
+                </div>
+                <div id="root-domain-indicator" class="hidden p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2 py-1 bg-blue-100 text-google-blue text-xs font-medium rounded">ROOT DOMAIN</span>
+                    <span class="font-medium text-google-gray-800" id="detected-root-domain"></span>
+                  </div>
+                  <p class="text-sm text-google-gray-600">
+                    You're setting up your root domain. Your emails will be sent from addresses like <code id="root-email-example" class="bg-white px-1.5 py-0.5 rounded text-xs"></code>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Generated DNS Records Table -->
+              <div id="generated-records" class="hidden mt-6">
+                <h4 class="font-medium text-google-gray-800 mb-3 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-google-green" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                  Your DNS Records
+                </h4>
+                <p class="text-sm text-google-gray-600 mb-4">Add these records to your DNS provider. Click the copy button to copy each value.</p>
+
+                <div class="overflow-x-auto rounded-lg border border-google-gray-200">
+                  <table class="w-full">
+                    <thead class="bg-google-gray-50">
+                      <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-google-gray-500 uppercase">Record</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-google-gray-500 uppercase">Type</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-google-gray-500 uppercase">Host/Name</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-google-gray-500 uppercase">Value</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-google-gray-500 uppercase w-20">Copy</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dns-records-body" class="divide-y divide-google-gray-200">
+                      <!-- Records will be inserted here by JavaScript -->
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p class="text-sm text-google-gray-700 flex items-start gap-2">
+                    <svg class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span><strong>Note:</strong> The verification code shown above is a placeholder. You'll get your actual verification code from TreatmentPath after registering your domain in Step 4.</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <!-- Prerequisites Section -->
-        <section id="prerequisites" class="mb-16">
+        <!-- Prerequisites Section - Hidden until domain is entered -->
+        <section id="prerequisites" class="mb-16 hidden">
           <h2 class="font-google-sans text-3xl font-medium text-google-gray-900 mb-6">Prerequisites</h2>
 
           <div class="space-y-4">
@@ -355,8 +455,8 @@
           </div>
         </section>
 
-        <!-- Add Domain Section -->
-        <section id="add-domain" class="mb-16">
+        <!-- Add Domain Section - Hidden until domain is entered -->
+        <section id="add-domain" class="mb-16 hidden">
           <h2 class="font-google-sans text-3xl font-medium text-google-gray-900 mb-6">Add Your Domain</h2>
 
           <p class="text-google-gray-600 mb-6">
@@ -1402,6 +1502,155 @@
       content.classList.toggle('hidden');
       icon.classList.toggle('rotate-180');
     }
+
+    // DNS Record Generator
+    function generateDnsRecords() {
+      const input = document.getElementById('domain-input').value.trim().toLowerCase();
+
+      if (!input) {
+        alert('Please enter a domain name');
+        return;
+      }
+
+      // Remove any protocol prefix
+      let domain = input.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+      // Parse the domain
+      const parts = domain.split('.');
+
+      // Determine if it's a subdomain (more than 2 parts, excluding common TLDs like .co.uk)
+      const commonTwoPartTlds = ['co.uk', 'com.au', 'co.nz', 'org.uk', 'net.au'];
+      let isSubdomain = false;
+      let subdomain = '';
+      let rootDomain = domain;
+
+      // Check if it ends with a two-part TLD
+      const lastTwoParts = parts.slice(-2).join('.');
+      const hasTwoPartTld = commonTwoPartTlds.includes(lastTwoParts);
+
+      if (hasTwoPartTld && parts.length > 3) {
+        isSubdomain = true;
+        subdomain = parts.slice(0, -3).join('.');
+        rootDomain = parts.slice(-3).join('.');
+      } else if (!hasTwoPartTld && parts.length > 2) {
+        isSubdomain = true;
+        subdomain = parts.slice(0, -2).join('.');
+        rootDomain = parts.slice(-2).join('.');
+      }
+
+      // Show/hide indicators
+      const typeIndicator = document.getElementById('domain-type-indicator');
+      const subdomainIndicator = document.getElementById('subdomain-indicator');
+      const rootDomainIndicator = document.getElementById('root-domain-indicator');
+      const generatedRecords = document.getElementById('generated-records');
+
+      typeIndicator.classList.remove('hidden');
+      generatedRecords.classList.remove('hidden');
+
+      // Show the Prerequisites and Add Domain sections now that user has entered their domain
+      document.getElementById('prerequisites').classList.remove('hidden');
+      document.getElementById('add-domain').classList.remove('hidden');
+
+      if (isSubdomain) {
+        subdomainIndicator.classList.remove('hidden');
+        rootDomainIndicator.classList.add('hidden');
+        document.getElementById('detected-domain').textContent = domain;
+        document.getElementById('subdomain-email-example').textContent = `noreply@${domain}`;
+      } else {
+        rootDomainIndicator.classList.remove('hidden');
+        subdomainIndicator.classList.add('hidden');
+        document.getElementById('detected-root-domain').textContent = domain;
+        document.getElementById('root-email-example').textContent = `noreply@${domain}`;
+      }
+
+      // Generate the DNS records
+      const host = isSubdomain ? subdomain : '@';
+      const dkimHost = isSubdomain ? `treatmentpath._domainkey.${subdomain}` : 'treatmentpath._domainkey';
+      const dmarcHost = isSubdomain ? `_dmarc.${subdomain}` : '_dmarc';
+
+      const records = [
+        {
+          name: 'Verification',
+          type: 'TXT',
+          typeBg: 'bg-purple-100',
+          typeColor: 'text-purple-700',
+          host: host,
+          value: 'treatmentpath-verify=YOUR_VERIFICATION_CODE',
+          description: 'Proves domain ownership'
+        },
+        {
+          name: 'SPF',
+          type: 'TXT',
+          typeBg: 'bg-blue-100',
+          typeColor: 'text-google-blue',
+          host: host,
+          value: 'v=spf1 include:spf.pathway.dental ~all',
+          description: 'Authorizes email sending'
+        },
+        {
+          name: 'DKIM',
+          type: 'TXT',
+          typeBg: 'bg-green-100',
+          typeColor: 'text-google-green',
+          host: dkimHost,
+          value: 'YOUR_DKIM_PUBLIC_KEY',
+          description: 'Email signature verification'
+        },
+        {
+          name: 'DMARC',
+          type: 'TXT',
+          typeBg: 'bg-yellow-100',
+          typeColor: 'text-google-yellow',
+          host: dmarcHost,
+          value: 'v=DMARC1; p=none; rua=mailto:dmarc@' + rootDomain,
+          description: 'Email authentication policy'
+        }
+      ];
+
+      // Render the table
+      const tbody = document.getElementById('dns-records-body');
+      tbody.innerHTML = records.map(record => `
+        <tr class="bg-white hover:bg-google-gray-50">
+          <td class="px-4 py-3">
+            <span class="font-medium text-google-gray-800">${record.name}</span>
+            <p class="text-xs text-google-gray-500">${record.description}</p>
+          </td>
+          <td class="px-4 py-3">
+            <span class="${record.typeBg} ${record.typeColor} px-2 py-1 rounded text-xs font-medium">${record.type}</span>
+          </td>
+          <td class="px-4 py-3">
+            <code class="text-sm font-mono bg-google-gray-100 px-2 py-1 rounded">${record.host}</code>
+          </td>
+          <td class="px-4 py-3">
+            <code class="text-xs font-mono text-google-gray-700 break-all">${record.value}</code>
+          </td>
+          <td class="px-4 py-3">
+            <button onclick="copyToClipboard('${record.value}')"
+                    class="p-2 hover:bg-google-gray-100 rounded-lg transition-colors"
+                    title="Copy value">
+              <svg class="w-4 h-4 text-google-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Scroll to the generated records
+      generatedRecords.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Allow Enter key to trigger generation
+    document.addEventListener('DOMContentLoaded', function() {
+      const domainInput = document.getElementById('domain-input');
+      if (domainInput) {
+        domainInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            generateDnsRecords();
+          }
+        });
+      }
+    });
 
     // Active nav highlighting on scroll
     document.addEventListener('DOMContentLoaded', function() {
