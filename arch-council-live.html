@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Architecture Council — LIVE</title>
+<style>
+  body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #f4f2fb; }
+  header { background: #554CB9; color: #fff; padding: .8rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1rem; margin: 0; }
+  #status { font-size: .75rem; opacity: .9; }
+  #live { margin: 0; padding: 1.5rem; white-space: pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: .8rem; line-height: 1.55; color: #241f3a; }
+  #live .round { color: #554CB9; font-weight: 800; font-size: .95rem; letter-spacing: .03em; }
+  #live .speaker { color: #1a7f4b; font-weight: 800; }
+  #live .ts { color: #8f86c9; font-size: .68rem; }
+  #live hr { border: none; border-top: 2px solid #e6def9; margin: 1.2rem 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏛 Architecture Council — TreatmentPath contact-dedup redesign (LIVE)</h1>
+  <div id="status">connecting…</div>
+</header>
+<main id="live">loading transcript…</main>
+<script>
+let last = "";
+async function tick() {
+  try {
+    const res = await fetch("arch-council-transcript.md?ts=" + Date.now());
+    if (!res.ok) throw new Error(res.status);
+    const text = await res.text();
+    if (text !== last) {
+      last = text;
+      const el = document.getElementById("live");
+      el.innerHTML = text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/== (ROUND [^=]+) ==/g, '<hr><span class="round">== $1 ==</span>')
+        .replace(/\*\*([A-Z][A-Za-z ]+(?:Code|Code|Agent)?)\*\*/g, '<span class="speaker">$1</span>')
+        .replace(/^## (.+)$/gm, '<span class="round">$1</span>')
+        .replace(/\[(\d{2}:\d{2}:\d{2})\]/g, '<span class="ts">[$1]</span>');
+      document.getElementById("status").textContent =
+        "live · " + new Date().toLocaleTimeString() + " · " + text.split("\n").length + " lines";
+    }
+  } catch (e) {
+    document.getElementById("status").textContent = "waiting for transcript (" + e.message + ")";
+  }
+}
+tick();
+setInterval(tick, 4000);
+</script>
+</body>
+</html>
