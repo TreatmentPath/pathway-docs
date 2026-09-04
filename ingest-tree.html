@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TreatmentPath — Ingress Connection Tree</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 2rem; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #f4f2fb; color: #1f2430; line-height: 1.55; }
+  h1 { font-size: 1.35rem; margin: 0 0 .25rem; }
+  .subtitle { color: #5b6472; margin: 0 0 1.2rem; font-size: .88rem; }
+  .subtitle a { color: #554CB9; }
+  pre.tree {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .78rem; line-height: 1.55; background: #14121f; color: #d6d2ff;
+    border-radius: 12px; padding: 1.4rem 1.6rem; overflow-x: auto; margin: 0;
+    box-shadow: 0 1px 4px rgba(20, 18, 31, .25);
+  }
+  pre.tree .dim { color: #8f86c9; }
+  pre.tree .grp { color: #ffd28a; font-weight: 700; }
+  pre.tree .core { color: #7ef0c0; font-weight: 700; }
+  pre.tree .note2 { color: #9aa4b8; }
+  pre.tree .arrow { color: #ff9e64; }
+  pre.tree .tbl { color: #8ecbff; font-weight: 700; }
+  pre.tree .how { color: #ffd28a; }
+  pre.tree .skip { color: #6b7280; }
+  h2.sub { font-size: 1.1rem; margin: 2.2rem 0 .3rem; }
+  .explain { color: #5b6472; font-size: .84rem; margin: 0 0 1rem; }
+</style>
+</head>
+<body>
+
+<h1>Ingress Connection Tree</h1>
+<p class="subtitle">
+  How every patient-data entry point connects to the identity core.
+  Full per-lane details and the normalization matrix live in the
+  <a href="ingest-data-flow.html">complete ingress map</a>. Generated 2026-09-03.
+</p>
+
+<pre class="tree"><span class="dim">ENTRY POINTS                                          (badge = record-column normalisation)</span>
+
+<b>Django · external</b>
+├── Legacy Intake Webhook  <span class="note2">(mapping config → split name)</span> ......... <span class="grp">[partial]</span> ──┐
+├── Custom Journey Webhook  <span class="note2">(fixed contract → throttle → idempotency)</span> ... <span class="grp">[partial]</span> ──┤
+└── Inbound Email / SMS / WhatsApp ────────────────────────────────── <span class="grp">[normalised]</span> ──┤
+    <span class="dim">└─ Go inbound worker (cmd/worker) parses Redis mail, POSTs to Django — 0 DB writes</span> ┘
+      │
+<b>Django · staff UI</b>
+├── Add-Patient Dialog  <span class="note2">(check-membership pre-flight, practice country default)</span>  <span class="grp">[normalised]</span> ──┐
+├── Patients CRUD  <span class="note2">(+ add-as-family-member → Household)</span> .......................... <span class="grp">[partial]</span> ──┤
+├── Move / Convert Dialog  <span class="note2">(preview → create-new / link-existing)</span> ......... <span class="grp">[normalised]</span> ──┤
+└── CSV Import · Data-Quality force-import  <span class="note2">(bulk)</span> ................... <span class="grp">[partial]</span> ──┘
+      │
+<b>Django · automated</b>
+├── Marketing Form Handoff ........................................... <span class="grp">[normalised]</span> ──┐
+├── Automations Engine  <span class="note2">(create patient/nurture/intake actions)</span> ......... <span class="grp">[partial]</span> ──┤
+├── AI Email-Parsed Intake .......................................... <span class="grp">[partial]</span> ──┤
+├── Online Booking  <span class="note2">(payment→patient; abandoned-session task)</span> ............ <span class="grp">[raw]</span> ──┤
+├── Journey Conversions  <span class="note2">(best-in-class normalisation)</span> ........... <span class="grp">[normalised]</span> ──┤
+└── Archive Restore  <span class="note2">(inherits archive-era values)</span> .................... <span class="grp">[raw]</span> ──┘
+      │
+<b>EmailServiceGo</b>
+├── Dentally Patient Migration / Sync  <span class="note2">(raw SQL into Django tables)</span> ── <span class="grp">[normalised]</span> ──┤
+├── Call Agent → createIntakeFromCall  <span class="note2">(GORM insert)</span> ................ <span class="grp">[partial]</span> ──┤
+└── Workflows update_record  <span class="note2">(delegates to Django REST — ORM rules apply)</span> ──────────┤
+      │
+      <span class="arrow">▼  every lane lands here ▼</span>
+
+<span class="core">IDENTITY CORE  (shared Postgres — Django ORM tables)</span>
+│
+├──1─ RECORD LAYER ── <span class="note2">TreatmentPlan_intake / _nurture / _patient rows</span>
+│      <span class="dim">record columns (email/phone) — per-lane strictness lives HERE only</span>
+│      │
+│      │  pre_save signal: set_patient_person → Person.resolve (name + DOB + channels)
+│      ▼
+├──2─ PERSON LAYER ── <span class="core">TreatmentPlan_person</span>  <span class="dim">(one human per practice)</span>
+│      │                            │
+│      │ link canonical channels    │ family grouping (shared channels / Dentally family_id)
+│      ▼                            ▼
+├──3─ CHANNEL LAYER ── <span class="core">TreatmentPlan_contactchannel</span> + <span class="core">personchannel</span>
+│      <span class="dim">canonical keys: E.164 phones, strip+lower emails — THE dedup key space</span>
+│      │
+│      ▼
+├──4─ HOUSEHOLD ── <span class="core">TreatmentPlan_household</span>  <span class="dim">(is_family, family_name)</span>
+│
+├──5─ MESSAGING ── <span class="dim">message_sessions</span>  <span class="note2">auto-created for unknown senders, normalised
+│                  session keys; participant_name back-filled once Person resolves</span>
+│
+└──6─ GO MIRRORS ── <span class="note2">recall_patient · daylist_patient · dentally_appointment ·
+                   call_records — snapshots only, read-only vs the identity core</span>
+
+<span class="dim">CROSS-LINKS</span>
+├── Contact merge / unweld  <span class="arrow">⟷</span> restructures PERSON + HOUSEHOLD (admin decision, never automatic)
+├── propagate_contact_fields  <span class="arrow">⟶</span> an email/phone edit on one record propagates to every
+│                              record on the same PERSON
+├── Conversion matcher  <span class="arrow">⟵</span> reads CHANNEL (canonical) + RECORD (raw) forms — tolerant of
+│                        the record-layer inconsistency shown above
+└── Go schemaguard  <span class="arrow">⟶</span> fails Go startup if Django migrations change the whitelisted tables</pre>
+
+
+<h2 class="sub">Entry point → database table write map</h2>
+<p class="explain">
+  For each entry point: every database table it writes, and <em>how</em>.
+  <span class="grp">ORM+sig</span> = Django ORM create — pre/post-save signals fire, so Person,
+  channels and household resolve automatically. <span class="grp">chokepoint</span> = written via
+  <code>ContactChannel.get_or_create_channel</code> (canonical keys). <span class="grp">raw SQL</span> /
+  <span class="grp">GORM</span> = bypasses Django (no signals — normalisation re-implemented in Go).
+  — = this entry point never touches that table.
+</p>
+
+<h2 class="sub" style="margin-top:1rem;">External ingress</h2>
+<pre class="tree">
+Legacy Intake Webhook  <span class="note2">[intake_views.py · IntakeWebhookReceiveView]</span>  <span class="grp">[partial]</span>
+├──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="how">ORM+sig</span> — parsed phone (primary + secondary), strip+lower email
+├──> <span class="tbl">TreatmentPlan_person</span> ............. <span class="how">via signals</span> — Person.resolve (reuse or create)
+├──> <span class="tbl">TreatmentPlan_contactchannel</span> ..... <span class="how">chokepoint</span> — canonical E.164 / strip+lower
+├──> <span class="tbl">TreatmentPlan_personchannel</span> ...... <span class="how">via signals</span>
+└──> <span class="tbl">TreatmentPlan_household</span> .......... <span class="how">via Person.resolve</span> — family grouping
+
+Custom Journey Webhook  <span class="note2">[custom_webhook_views.py · CustomJourneyWebhookIngestView]</span>  <span class="grp">[partial]</span>
+├──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="how">ORM+sig</span> — parsed phone (defensive), strip+lower email,
+│                                        stamped at webhook.destination_stage
+├──> <span class="tbl">TreatmentPlan_person</span> / <span class="tbl">personchannel</span> / <span class="tbl">contactchannel</span> / <span class="tbl">household</span>
+│                                       <span class="how">via signals → chokepoint</span> — identical to legacy
+└──> messaging idempotency cache <span class="note2">(Redis — not a DB write)</span>
+
+Inbound Email / SMS / WhatsApp  <span class="note2">[messaging/models.py:251 · Twilio / SendGrid / Go-worker / WhatsApp webhooks]</span>  <span class="grp">[normalised]</span>
+└──> <span class="tbl">messaging_messagesession</span> ........... <span class="how">ORM+sig</span> — auto-created for unknown senders;
+                                         email strip+lower, phone split cc + local for session key.
+                                         <span class="skip">No identity tables — Person links only after resolution.</span>
+</pre>
+
+<h2 class="sub" style="margin-top:1.5rem;">Staff UI</h2>
+<pre class="tree">
+Add-Patient Dialog  <span class="note2">[AddPatientDialog.tsx → IntakeListCreateView]</span>  <span class="grp">[normalised]</span>
+├──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="how">ORM+sig</span> — structured input, stage stamp optional
+└──> person / contactchannel / personchannel / household
+                                        <span class="how">via signals → chokepoint</span> (same as every ORM create)
+
+Patients CRUD API  <span class="note2">[serializers/patient.py:601 · PatientSerializer.create]</span>  <span class="grp">[partial]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> ............. <span class="how">ORM+sig</span> — names stripped/titled; <span class="skip">email casing kept</span>
+├──> <span class="tbl">TreatmentPlan_person</span> + channels .... <span class="how">via signals → chokepoint</span>
+└──> (viewset dedup pre-check on normalised email/phone)
+
+Add-as-family-member  <span class="note2">[patient_views.py:619]</span>  <span class="grp">[normalised]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> ............. <span class="how">ORM+sig</span>
+├──> <span class="tbl">TreatmentPlan_person</span> ............. <span class="how">explicit Person.resolve</span>
+└──> <span class="tbl">TreatmentPlan_household</span> .......... <span class="how">direct create / reuse</span>
+
+Move / Convert Dialog  <span class="note2">[conversion_views.py + journey/mixins.py]</span>  <span class="grp">[normalised]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> ............. <span class="how">ORM+sig</span> — canonical email + E.164 phone on create;
+│                                        or forced <span class="grp">target_patient_id</span> (no signals on force)
+├──> <span class="tbl">TreatmentPlan_nurture</span> / <span class="tbl">intake</span> .... <span class="how">ORM+sig</span> — same canonical values
+└──> person / channels / household ..... <span class="how">via signals → chokepoint</span> + Phase-5 family link
+
+CSV Bulk Import  <span class="note2">[patient_views.py:1204 · import_csv]</span>  <span class="grp">[partial]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> ............. <span class="how">bulk_create</span> — <span class="skip">email strip-only, casing kept</span>
+├──> <span class="tbl">TreatmentPlan_person</span> ............. <span class="how">explicit Person.resolve</span>
+└──> <span class="tbl">contactchannel</span> / <span class="tbl">personchannel</span> ..... <span class="how">chokepoint</span>
+
+Data-Quality force-import  <span class="note2">[dataQuality/views.py:243]</span>  <span class="grp">[normalised]</span>
+└──> <span class="tbl">TreatmentPlan_patient</span> + channels + optional <span class="tbl">household</span>
+                                        <span class="how">ORM+sig + chokepoint</span>
+</pre>
+
+<h2 class="sub" style="margin-top:1.5rem;">Automated / background</h2>
+<pre class="tree">
+Marketing Form Handoff  <span class="note2">[marketingBroadcast/form_handoffs.py:282]</span>  <span class="grp">[normalised]</span>
+└──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="how">ORM+sig</span> — parse_phone_number + strip+lower email
+    <span class="skip">(2026-09-02 — was fully raw)</span>
+    └── person / channels / household ... <span class="how">via signals</span>
+
+Automations Engine  <span class="note2">[automations/actions.py · create_patient :296 / nurture :741 / intake :855]</span>  <span class="grp">[partial]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> / <span class="tbl">nurture</span> / <span class="tbl">intake</span>
+│                                       <span class="how">ORM+sig</span> — <span class="skip">email strip-only on record</span>
+└──> (Dentally-fetched patient :943 uses canonical_phone_e164 for dedup)
+
+AI Email-Parsed Intake  <span class="note2">[services/email_intake.py:380]</span>  <span class="grp">[partial]</span>
+└──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="how">ORM+sig</span> — E.164 phone; <span class="skip">email raw from AI extraction</span>
+    └── person / channels / household ... <span class="how">via signals</span>
+
+Online Booking  <span class="note2">[onlineBooking/services.py:507 + tasks.py:118]</span>  <span class="grp">[raw]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> ............. <span class="how">ORM+sig</span> — <span class="skip">email + phone RAW from hold (on Stripe payment)</span>
+└──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="how">ORM+sig</span> — <span class="skip">abandoned-session task, raw contact cols</span>
+    └── person / channels / household ... <span class="how">via signals</span> (+ <span class="tbl">patient_accounts</span> link)
+
+Journey Conversions  <span class="note2">[journey/mixins.py]</span>  <span class="grp">[normalised]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> / <span class="tbl">nurture</span> / <span class="tbl">intake</span>
+│                                       <span class="how">ORM+sig</span> — <span class="grp">canonical: email strip+lower, E.164 phone</span>
+│                                        (2026-09-02; forced target_patient_id skips signals)
+└──> person / channels / household ..... <span class="how">via signals</span> + Phase-5 family link on create
+
+Archive Restore  <span class="note2">[models.py:4884-4935]</span>  <span class="grp">[raw]</span>
+└──> <span class="tbl">TreatmentPlan_patient</span> / <span class="tbl">intake</span> / <span class="tbl">nurture</span>
+                                        <span class="how">ORM+sig</span> — <span class="skip">values copied from archive
+                                        (inherit whatever normalisation era produced them)</span>
+</pre>
+
+<h2 class="sub" style="margin-top:1.5rem;">EmailServiceGo (same shared Postgres)</h2>
+<pre class="tree">
+Dentally Patient Migration / Sync  <span class="note2">[internal/dentally/migration/service.go]</span>  <span class="grp">[normalised]</span>
+├──> <span class="tbl">TreatmentPlan_patient</span> ............. <span class="grp">raw SQL</span> UPDATE (:1015) / INSERT (:1074) —
+│                                        dial/local split phone, lower+trim email
+├──> <span class="tbl">TreatmentPlan_person</span> ............. <span class="grp">raw SQL INSERT</span> (:1438) — resolve mirrored in Go
+├──> <span class="tbl">TreatmentPlan_contactchannel</span> ..... <span class="grp">raw SQL INSERT</span> (:1560) — E.164 / lowercase;
+│                                        canonicalTwin adoption (:1512)
+├──> <span class="tbl">TreatmentPlan_personchannel</span> ...... <span class="grp">raw SQL INSERT</span> (:1462)
+└──> <span class="tbl">TreatmentPlan_household</span> .......... <span class="grp">raw SQL INSERT</span> (:1183/:1272) — Dentally family_id
+    <span class="skip">⚠ bypasses Django signals — Person/channel resolution re-implemented in Go;
+      schemaguard whitelists these tables and gates startup</span>
+
+Call Agent → createIntakeFromCall  <span class="note2">[internal/callagent/storage.go:577]</span>  <span class="grp">[partial]</span>
+└──> <span class="tbl">TreatmentPlan_intake</span> .............. <span class="grp">GORM insert</span> — <span class="skip">bypasses Django signals;</span>
+                                         E.164 in normalized_phone, <span class="skip">raw legacy columns,
+                                         email trimmed not lowercased</span>
+    └── notifies Django via intake endpoint (storage.go:757)
+
+Workflows update_record  <span class="note2">[internal/workflows/actions/update_record.go]</span>  <span class="grp">[normalised]</span>
+└──> <span class="skip">no direct writes</span> — calls Django REST; <span class="grp">ORM+sig</span> rules apply
+
+Recall / Daylist / Appointment mirrors  <span class="note2">[internal/dentally/recall/, daylist/]</span>  <span class="grp">[Go-own tables]</span>
+└──> recall_patient · daylist_patient · dentally_appointment · call_records
+    <span class="skip">snapshots in the Go DB — read-only vs the Django identity core;
+    call_records.caller_phone stored raw</span>
+</pre>
+
+</body>
+</html>
