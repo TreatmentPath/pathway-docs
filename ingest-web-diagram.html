@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TreatmentPath — Ingress Web Diagram: flows, models, problem areas</title>
+<script src="vis-network.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #f4f2fb; color: #1f2430; }
+  header { padding: 1rem 1.5rem .5rem; }
+  h1 { font-size: 1.3rem; margin: 0 0 .2rem; }
+  .subtitle { color: #5b6472; font-size: .85rem; margin: 0; }
+  #layout { display: flex; height: calc(100vh - 90px); }
+  #side { width: 330px; overflow-y: auto; padding: .5rem 1rem 1.5rem; flex-shrink: 0; }
+  body.panel-hidden #side { display: none; }
+  #net { flex: 1; border: 1px solid #e6def9; border-radius: 12px; background: #fff; margin: 0 1rem 1rem 0; }
+  #toolbar { position: fixed; top: 12px; right: 14px; z-index: 10; display: flex; gap: .4rem; }
+  #toolbar button { background: #fff; border: 1px solid #e6def9; color: #44337a; border-radius: 8px;
+    padding: .35rem .7rem; font-size: .76rem; cursor: pointer; box-shadow: 0 1px 3px rgba(60,50,120,.12); }
+  #toolbar button:hover { background: #f1eefc; }
+  .legend-box { border: 1px solid #e6def9; background: #fff; border-radius: 10px; padding: .6rem .8rem; margin-bottom: .8rem; font-size: .78rem; }
+  .legend-box b { font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: #5b6472; }
+  .sw { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .problem { border-left: 4px solid #d92d20; background: #fef3f2; border-radius: 8px; padding: .5rem .7rem; margin: .45rem 0; font-size: .78rem; }
+  .problem b { color: #b42318; }
+  .fixed { border-left: 4px solid #12b76a; background: #ecfdf3; border-radius: 8px; padding: .5rem .7rem; margin: .45rem 0; font-size: .78rem; }
+  .fixed b { color: #027a48; }
+  .watch { border-left: 4px solid #f79009; background: #fffaeb; border-radius: 8px; padding: .5rem .7rem; margin: .45rem 0; font-size: .78rem; }
+  .watch b { color: #b54708; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Patient Data — Ingress Web: flows, models &amp; problem areas</h1>
+  <p class="subtitle">Drag nodes, scroll to zoom, click a node to highlight its connections. Red = problem area, amber = watch, green = fixed this session. Generated 2026-09-03 · updated 2026-09-04 (normalisation sweep, canonical-key unification, identity matrix).</p>
+</header>
+
+<div id="toolbar">
+  <button id="btn-panel">☰ Toggle legend</button>
+  <button id="btn-fit">⤢ Fit</button>
+</div>
+
+<div id="layout">
+  <div id="side">
+    <div class="legend-box">
+      <b>Node colours</b><br>
+      <span class="sw" style="background:#8ecbff"></span> external ingress<br>
+      <span class="sw" style="background:#a5b4fc"></span> staff UI path<br>
+      <span class="sw" style="background:#fcd34d"></span> automated / background<br>
+      <span class="sw" style="background:#6ee7b7"></span> Go service writer<br>
+      <span class="sw" style="background:#fda4af"></span> problem area<br>
+      <span class="sw" style="background:#c4b5fd; border-radius:4px"></span> identity core model<br>
+      <span class="sw" style="background:#e5e7eb; border-radius:4px"></span> record / workflow model
+    </div>
+
+    <div class="legend-box">
+      <b>How to read it</b><br>
+      Arrows follow the direction data is <em>written</em>. Every arrow into the identity core
+      (Person → PersonChannel → ContactChannel) passes the pre-save signal pipeline — except the
+      two thick red dashed edges (Go writers), which bypass it.
+    </div>
+
+    <div class="problem">
+      <b>P1 · Record-level contact columns</b> — the duplication root.
+      Patient/Intake/Nurture each hold their own email/phone copies, written by 17+ lanes with
+      different strictness. Any matcher reading these columns inherits the drift. All raw/partial
+      lanes (red/amber nodes) feed this.
+    </div>
+    <div class="problem">
+      <b>P2 · Go writers bypass Django signals</b> — Dentally sync (raw SQL) and Call Agent
+      (GORM) write Patient/Intake/Person/Channel rows directly; <code>set_patient_person</code>,
+      propagation and merge signals never fire. Person/channel resolution is re-implemented in Go.
+    </div>
+    <div class="watch">
+      <b>P3 · Online Booking writes raw</b> — payment-converted Patients and abandoned-session
+      Intakes store unnormalised email/phone (services.py:507, tasks.py:118).
+    </div>
+    <div class="fixed">
+      <b>P4 · AI email intake &amp; CSV import — FIXED</b> — AI-extraction lane (2026-09-03);
+      CSV import email now strip+lower, and a row that DEDUPS onto an existing patient now
+      contributes its channels to that Person instead of discarding them (the dedup was
+      manufacturing the next duplicate). 2026-09-04.
+    </div>
+    <div class="problem">
+      <b>P6 · Dentally tables sit OUTSIDE the identity graph</b> — RecallPatient (32k),
+      RecallRecord (32k), DentallyAppointment (556k), DaylistPatient (9k) carry email/phone but
+      have <i>no</i> person FK and <i>no</i> channel FK, and are written by Go. Their contacts can
+      never participate in dedup. Email drift was ongoing, not legacy (Sep-2026:
+      DentallyAppointment 251, DaylistPatient 6) — writers now canonicalise, but the
+      <b>structural</b> gap (no channel linkage) remains open.
+    </div>
+    <div class="watch">
+      <b>P7 · Call-agent weld window</b> — measured 2026-09-04: <b>zero</b> call-agent intakes
+      get a Person at insert. 1445/1447 are welded only when Django later re-saves the row —
+      median under 24h, tail to <b>59 days</b>. The 7 permanent orphans are correct (no usable
+      channel: "anonymous" caller, no email) bar one with a valid number.
+    </div>
+    <div class="watch">
+      <b>P5 · Oversized households</b> — shared generic values have grouped huge "families"
+      (a 202-member household exists); needs capping/review (Phase 5 optional step).
+    </div>
+    <div class="fixed">
+      <b>F1 · Family sibling adoption — FIXED</b> — conversion matcher now prefers the record's
+      own Person link and rejects cross-Person adoption (journey/mixins.py).
+    </div>
+    <div class="fixed">
+      <b>F2 · Ingest boundary normalisation — FIXED</b> — <code>normalize_lead_contact</code>
+      (strip+lower email, trim) at all four webhook/form/AI-email lanes; phones parsed at all lanes.
+    </div>
+    <div class="fixed">
+      <b>F3 · Conversion creation writes canonical values — FIXED</b> — new Patients get
+      lowercased email + E.164 phone; forced <code>target_patient_id</code> links the exact
+      picked patient.
+    </div>
+    <div class="fixed">
+      <b>F4 · ONE normalizer per key, cross-language — FIXED</b> — Django had ~20 inline email
+      copies and <b>three</b> name normalizers with <b>two</b> behaviours: the duplicate FINDER
+      collapsed internal whitespace, <code>Person.resolve</code> (the RESOLVER) did not, so the
+      finder reported matches the resolver refused to act on. Now one definition
+      (<code>utils/contact_keys.py</code>: <code>canonical_email</code>,
+      <code>canonical_name_part</code>) with every identity-critical caller delegating, mirrored
+      in Go by <code>pkg/email</code> + <code>pkg/personname</code> and pinned to Django by a
+      shared fixture (<code>contact_key_fixtures.json</code>) — the same mechanism that already
+      guards <code>pkg/phone</code>. 2026-09-04.
+    </div>
+    <div class="fixed">
+      <b>F5 · Identity truth-table pinned to the backend — FIXED</b> — the 8 name/email/phone
+      cases are now asserted against real ingests in
+      <code>test_identity_resolution_matrix.py</code>. Cells 2 and 5 had never been exercised by
+      any test. <b>Case 5 (same name, all-new email and phone) can never merge</b> — name is not a
+      candidacy signal — so a returning patient with new contact details is a permanently
+      invisible duplicate. Case 4 (all channels match, name differs) splits by design and is
+      handed to the manual merge flow.
+    </div>
+    <div class="fixed">
+      <b>F6 · Ingress harness verdicts were unfalsifiable — FIXED</b> — the scorer keyed each test
+      record by <i>email</i>, so the 7 of 14 scenarios that share an email between records always
+      scored <code>correct_merge</code> regardless of what the product did. Refs are now keyed to
+      the DB row their own delivery landed on. 2026-09-04.
+    </div>
+  </div>
+
+  <div id="net"></div>
+</div>
+
+<script>
+const NODES = [
+  // ── Entry points ──
+  { id: "ep-legacy",   label: "Legacy Intake Webhook",  group: "ext",  title: "intake_views.py · IntakeWebhookReceiveView — field-mapping config, phone parse (primary+secondary), email strip+lower" },
+  { id: "ep-custom",   label: "Custom Journey Webhook", group: "ext",  title: "custom_webhook_views.py — fixed contract serializer, idempotency cache, defensive phone parse, stage stamp" },
+  { id: "ep-msg",      label: "Inbound Email/SMS/WhatsApp", group: "ext", title: "Twilio/SendGrid/Go-worker/WhatsApp webhooks — auto-creates MessageSession for unknown senders (normalised keys)" },
+  { id: "ep-add",      label: "Add-Patient Dialog",     group: "ui",   title: "IntakeListCreateView — structured input, country picker, check-membership pre-flight" },
+  { id: "ep-crud",     label: "Patients CRUD API",      group: "ui",   title: "PatientSerializer.create — dedup pre-check; email casing kept on record" },
+  { id: "ep-family",   label: "Add-as-family-member",   group: "ui",   title: "patient_views.py:619 — Patient + Person.resolve + Household" },
+  { id: "ep-move",     label: "Move / Convert Dialog",  group: "ui",   title: "preview → create-new (editable, practice country default) or link-existing (search + target_patient_id)" },
+  { id: "ep-csv",      label: "CSV Bulk Import",        group: "ui",   title: "patient_views.py:1204 — bulk_create; phone E.164; email strip+LOWER (fixed 2026-09-04); a deduped row now contributes its channels to the matched Person instead of dropping them", problem: "F5" },
+  { id: "ep-dq",       label: "DQ force-import",        group: "ui",   title: "dataQuality/views.py:243 — re-import duplicate issues via chokepoint" },
+  { id: "ep-mkt",      label: "Marketing Form Handoff", group: "auto", title: "form_handoffs.py:282 — email strip+lower + phone parse (fixed 2026-09-02)" },
+  { id: "ep-auto",     label: "Automations Engine",     group: "auto", title: "actions.py create_patient/nurture/intake — email strip only on record" },
+  { id: "ep-ai",       label: "AI Email-Parsed Intake", group: "auto", title: "services/email_intake.py — FIXED 2026-09-03: email strip+lower + name trim via normalize_lead_contact at create_intake_from_email (covers AI + regex fallback + sender fallback)" },
+  { id: "ep-book",     label: "Online Booking",         group: "auto", title: "payment→Patient + abandoned-session Intake — RAW email/phone", problem: "P3" },
+  { id: "ep-conv",     label: "Journey Conversions",    group: "auto", title: "journey/mixins.py — Intake/Nurture/Patient conversions; canonical creation values" },
+  { id: "ep-restore",  label: "Archive Restore",        group: "auto", title: "models.py:4884-4935 — copies values from archive (inherits old shapes)", problem: "P1" },
+  { id: "ep-merge",    label: "Merge / Unweld",         group: "auto", title: "contact_merge_views.py — non-destructive Person merge; Household restructure" },
+  { id: "ep-backfill", label: "Backfill commands",      group: "auto", title: "backfill_name_only_persons / backfill_persons_households / unweld_persons" },
+  { id: "go-sync",     label: "Go · Dentally Sync",     group: "go",   title: "migration/service.go — raw SQL into Patient/Person/Channels/Household. BYPASSES SIGNALS (P2). E.164+lowercase channels via shared pkg/phone + pkg/email (2026-09-04), dial/local patient columns", problem: "P2" },
+  { id: "go-call",     label: "Go · Call Agent",        group: "go",   title: "callagent/storage.go:577 — GORM Intake insert, bypasses signals (P2). MEASURED 2026-09-04: 0 of 1447 rows get a Person at insert; 1445 are welded only when Django later re-saves them — median <24h but a tail to 59 DAYS invisible to dedup. Email now canonical via pkg/email (fixed 2026-09-04).", problem: "P2" },
+  { id: "go-wf",       label: "Go · Workflows update",  group: "go",   title: "delegates record updates to Django REST — ORM rules apply" },
+  { id: "ep-admin",    label: "Django Admin",           group: "ui",   title: "TreatmentPlan/admin.py (7 registrations incl. NonRegisteredPatientAdmin) — staff edits fire the signal pipeline, but form values land as typed (no boundary normalization). Sweep finding 2026-09-03" },
+  { id: "ep-bot",      label: "pathwaybot Widget",      group: "ext",  title: "Lead-capture widget (own DB) — delivers leads via configurable webhook URL into the TreatmentPath webhook lanes. Upstream source, not a separate write path. Sweep finding 2026-09-03" },
+
+  // ── Record layer ──
+  { id: "m-intake",  label: "INTAKE",        group: "record", level: 1, title: "TreatmentPlan_intake — clinical/workflow record. Holds its own email/phone columns (P1)" },
+  { id: "m-nurture", label: "NURTURE",       group: "record", level: 1, title: "TreatmentPlan_nurture — same column pattern (P1)" },
+  { id: "m-patient", label: "PATIENT",       group: "record", level: 1, title: "TreatmentPlan_patient — same column pattern (P1)" },
+  { id: "m-msg",     label: "MESSAGE SESSION", group: "record", level: 1, title: "messaging MessageSession — auto-created for unknown senders; normalised session keys" },
+  { id: "m-archive", label: "ARCHIVE",       group: "record", level: 2, title: "Archive rows — conversions/close copy values here" },
+
+  // ── Identity core ──
+  { id: "c-person",  label: "PERSON",        group: "core", level: 2, title: "The canonical human per practice. name, DOB, merged_into (non-destructive merge), household FK" },
+  { id: "c-channel", label: "CONTACT CHANNEL", group: "core", level: 3, title: "THE dedup key space. unique (practice, kind, canonical_value). E.164 phones / strip+lower emails. needs_review for junk" },
+  { id: "c-pch",     label: "PERSON CHANNEL", group: "core", level: 3, title: "person ↔ channel through table: is_primary per kind + consent flags (use_sms/use_email/marketing_consent)" },
+  { id: "c-house",   label: "HOUSEHOLD",     group: "core", level: 4, title: "family grouping — is_family when >1 member; family_name from shared surname", problem: "P5" },
+
+  // ── Signals & surfaces ──
+  { id: "s-sig",     label: "SIGNAL PIPELINE (pre/post-save)", group: "core", level: 1, shape: "hexagon", title: "signals.py: _ensure_channels (chokepoint :219) + Person.resolve (:539) + propagate_contact_fields (:419). Fires on EVERY ORM save of Intake/Nurture/Patient" },
+
+  // ── Problem nodes ──
+  { id: "p-cols",    label: "⚠ RECORD CONTACT COLUMNS\nduplication root", group: "problem", level: 2, title: "P1 — per-record email/phone copies written by every lane with different strictness. Identity decisions must NOT read these (match via Person + canonical channels instead)" },
+  { id: "p-bypass",  label: "⚠ SIGNAL BYPASS\nGo raw writers", group: "problem", level: 2, title: "P2 — Go writes skip set_patient_person / propagation; resolution re-implemented in Go (parity risk)" },
+];
+
+const EDGES = [
+  // entry points → records (write)
+  { from: "ep-legacy",   to: "m-intake",  label: "ORM+sig" },
+  { from: "ep-custom",   to: "m-intake",  label: "ORM+sig" },
+  { from: "ep-mkt",      to: "m-intake",  label: "ORM+sig" },
+  { from: "ep-ai",       to: "m-intake",  label: "ORM+sig", color: { color: "#f79009" } },
+  { from: "ep-add",      to: "m-intake",  label: "ORM+sig" },
+  { from: "ep-auto",     to: "m-intake",  label: "create", color: { color: "#f79009" } },
+  { from: "ep-auto",     to: "m-nurture", label: "create", color: { color: "#f79009" } },
+  { from: "ep-auto",     to: "m-patient", label: "create", color: { color: "#f79009" } },
+  { from: "ep-book",     to: "m-patient", label: "ORM+sig · RAW cols", color: { color: "#d92d20" }, font: { color: "#b42318" } },
+  { from: "ep-book",     to: "m-intake",  label: "abandoned · RAW cols", color: { color: "#d92d20" } },
+  { from: "ep-crud",     to: "m-patient", label: "ORM+sig · email casing kept", color: { color: "#f79009" } },
+  { from: "ep-family",   to: "m-patient", label: "ORM+sig" },
+  { from: "ep-csv",      to: "m-patient", label: "bulk · canonical email", color: { color: "#12b76a" } },
+  { from: "ep-dq",       to: "m-patient", label: "ORM+sig" },
+  { from: "ep-move",     to: "m-intake",  label: "convert" },
+  { from: "ep-move",     to: "m-nurture", label: "convert" },
+  { from: "ep-move",     to: "m-patient", label: "create/link · canonical", color: { color: "#12b76a" } },
+  { from: "ep-conv",     to: "m-patient", label: "convert · canonical", color: { color: "#12b76a" } },
+  { from: "ep-conv",     to: "m-nurture", label: "convert · canonical", color: { color: "#12b76a" } },
+  { from: "ep-conv",     to: "m-intake",  label: "convert", color: { color: "#12b76a" } },
+  { from: "ep-msg",      to: "m-msg",     label: "auto-create session" },
+  { from: "ep-admin",    to: "m-patient", label: "ORM+sig · values as typed", color: { color: "#f79009" } },
+  { from: "ep-bot",      to: "ep-legacy", label: "leads via webhook", arrows: "to", color: { color: "#94a3b8" } },
+  { from: "ep-bot",      to: "ep-custom", label: "leads via webhook", arrows: "to", color: { color: "#94a3b8" } },
+  { from: "ep-restore",  to: "m-intake",  label: "restore", color: { color: "#f79009" } },
+  { from: "ep-restore",  to: "m-nurture", label: "restore", color: { color: "#f79009" } },
+  { from: "ep-restore",  to: "m-patient", label: "restore", color: { color: "#f79009" } },
+
+  // conversions between records
+  { from: "m-intake",  to: "m-patient", label: "convert (canonical)", arrows: "to", dashes: false },
+  { from: "m-intake",  to: "m-nurture", label: "convert" },
+  { from: "m-nurture", to: "m-intake",  label: "convert" },
+  { from: "m-nurture", to: "m-patient", label: "convert" },
+  { from: "m-intake",  to: "m-archive", label: "close/convert" },
+  { from: "m-nurture", to: "m-archive", label: "close/convert" },
+  { from: "m-patient", to: "m-archive", label: "archive" },
+
+  // records → signal pipeline → identity core
+  { from: "m-intake",  to: "s-sig",   label: "every save", arrows: "to", color: { color: "#6C5ACF" } },
+  { from: "m-nurture", to: "s-sig",   arrows: "to", color: { color: "#6C5ACF" } },
+  { from: "m-patient", to: "s-sig",   arrows: "to", color: { color: "#6C5ACF" } },
+  { from: "s-sig",     to: "c-person",  label: "Person.resolve", arrows: "to", color: { color: "#6C5ACF" } },
+  { from: "s-sig",     to: "c-channel", label: "_ensure_channels (chokepoint)", arrows: "to", color: { color: "#6C5ACF" } },
+  { from: "c-person",  to: "c-pch",   arrows: "to" },
+  { from: "c-channel", to: "c-pch",   arrows: "to" },
+  { from: "c-person",  to: "c-house", label: "household grouping", arrows: "to" },
+  { from: "s-sig",     to: "m-msg",   label: "back-fill participant name", arrows: "to", color: { color: "#94a3b8" } },
+
+  // Go writers bypass the signal pipeline (dashed red, straight to records + core)
+  { from: "go-sync",   to: "m-patient",  label: "RAW SQL", arrows: "to", dashes: true, color: { color: "#d92d20" }, width: 3 },
+  { from: "go-sync",   to: "c-person",   label: "raw SQL (resolve mirrored)", arrows: "to", dashes: true, color: { color: "#d92d20" }, width: 3 },
+  { from: "go-sync",   to: "c-channel",  label: "raw SQL (E.164+lower)", arrows: "to", dashes: true, color: { color: "#d92d20" }, width: 3 },
+  { from: "go-sync",   to: "c-house",    label: "raw SQL (family_id)", arrows: "to", dashes: true, color: { color: "#d92d20" } },
+  { from: "go-call",   to: "m-intake",   label: "GORM · no signals", arrows: "to", dashes: true, color: { color: "#d92d20" }, width: 3 },
+  { from: "go-wf",     to: "m-patient",  label: "via Django REST (ORM+sig)", arrows: "to", color: { color: "#6ee7b7" } },
+
+  // problem nodes
+  { from: "p-cols",   to: "m-intake",  arrows: "from", dashes: true, color: { color: "#d92d20" }, label: "columns live here" },
+  { from: "p-cols",   to: "m-nurture", arrows: "from", dashes: true, color: { color: "#d92d20" } },
+  { from: "p-cols",   to: "m-patient", arrows: "from", dashes: true, color: { color: "#d92d20" } },
+  { from: "p-bypass", to: "go-sync",   arrows: "from", dashes: true, color: { color: "#d92d20" } },
+  { from: "p-bypass", to: "go-call",   arrows: "from", dashes: true, color: { color: "#d92d20" } },
+];
+
+const nodes = new vis.DataSet(NODES.map(n => ({
+  id: n.id,
+  label: n.label,
+  title: n.title,
+  level: n.level ?? 0,
+  shape: n.shape || "dot",
+  size: n.group === "problem" ? 22 : (n.group === "core" ? 20 : (n.group?.startsWith("m-") || n.group === "record" ? 18 : 12)),
+  borderWidth: n.problem ? 4 : 2,
+  color: {
+    background: n.group === "problem" ? "#fda4af"
+      : n.group === "core" ? "#c4b5fd"
+      : n.group === "record" ? "#e5e7eb"
+      : n.group === "ext" ? "#8ecbff"
+      : n.group === "ui" ? "#a5b4fc"
+      : n.group === "auto" ? "#fcd34d"
+      : n.group === "go" ? "#6ee7b7"
+      : "#e5e7eb",
+    border: n.problem ? "#b42318" : "#333",
+  },
+  font: { size: n.group === "core" ? 16 : 12, face: "system-ui" },
+})));
+
+const edges = new vis.DataSet(EDGES.map(e => ({
+  from: e.from, to: e.to, label: e.label || "",
+  arrows: e.arrows || "to",
+  dashes: !!e.dashes,
+  color: e.color || { color: "#94a3b8" },
+  width: e.width || 1,
+  font: { size: 9, color: "#5b6472", strokeWidth: 0 },
+})));
+
+const container = document.getElementById("net");
+const data = { nodes, edges };
+
+// ── Selection focus: hide unrelated nodes AND arrows, then zoom to the focused cluster ──
+function focusOn(nodeId) {
+  const keepEdges = new Set(network.getConnectedEdges(nodeId));
+  const keepNodes = new Set([nodeId]);
+  edges.forEach(e => {
+    if (keepEdges.has(e.id)) {
+      keepNodes.add(e.from);
+      keepNodes.add(e.to);
+    }
+  });
+  nodes.forEach(n => nodes.update({ id: n.id, hidden: !keepNodes.has(n.id) }));
+  edges.forEach(e => edges.update({ id: e.id, hidden: !keepEdges.has(e.id) }));
+  network.fit();
+}
+function restoreAll() {
+  nodes.forEach(n => nodes.update({ id: n.id, hidden: false }));
+  edges.forEach(e => edges.update({ id: e.id, hidden: false }));
+  network.fit();
+}
+const options = {
+  layout: {
+    hierarchical: {
+      enabled: true,
+      direction: "UD",
+      sortMethod: "directed",
+      levelSeparation: 260,
+      nodeSpacing: 260,
+      treeSpacing: 420,
+      shakeTowards: "leaves",
+      blockShifting: true,
+      edgeMinimization: true,
+    },
+  },
+  physics: { enabled: false },
+  interaction: { hover: true, tooltipDelay: 120, navigationButtons: true, keyboard: true },
+  edges: { smooth: { enabled: true, type: "continuous", roundness: 0.3 } },
+};
+const network = new vis.Network(container, data, options);
+
+network.on("click", (params) => {
+  if (params.nodes.length > 0) {
+    focusOn(params.nodes[0]);
+  } else {
+    restoreAll();
+  }
+});
+network.on("deselectNode", () => restoreAll());
+window.__net = network; // debug/testing handle
+
+document.getElementById("btn-panel").addEventListener("click", () => {
+  document.body.classList.toggle("panel-hidden");
+  setTimeout(() => network.fit(), 50);
+});
+document.getElementById("btn-fit").addEventListener("click", () => network.fit());
+</script>
+</body>
+</html>
