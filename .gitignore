@@ -1,1 +1,7 @@
 .mimosa/
+
+# Identity snapshot logs
+identity-snapshots/**/*.log
+identity-snapshots/*.log
+identity-snapshots/**/*.csv
+identity-snapshots/*.csv
