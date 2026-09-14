@@ -1,358 +1,263 @@
-# Contact identity — findings, 2026-09-04
+# Contact identity — findings and production plan
 
-Living document. Everything here is **measured**, not inferred, unless a line says
-otherwise. DEV and PROD figures are given separately; where they agree, the problem is
-real in production at full scale.
+**Investigated 2026-09-04. DEV figures verified against PROD (read-only). Nothing written to production.**
 
----
-
-## 0. The one-paragraph summary
-
-The system decides "who is this?" by looking a contact detail up in a registry
-(`ContactChannel` → `PersonChannel` → `Person`). An email or phone written on a patient's
-file is **not** in that registry unless something puts it there. Three separate things go
-wrong: details never registered, details registered in the wrong practice, and — most
-seriously — **details registered against the wrong human**. The last one means the app
-shows a patient under someone else's name.
+Everything here is **measured** unless a line says otherwise. Section 7 lists the
+conclusions that were wrong along the way and why — several headline numbers moved by
+an order of magnitude under checking, so the reasoning trail matters as much as the
+result.
 
 ---
 
-## 1. Scale (PROD, read-only via `sim_readonly`)
+## 1. The four defects, final state
 
-| | PROD | DEV |
-|---|---|---|
-| Patients | 60,326 | 60,506 |
-| Persons | 83,697 | — |
-| Registered contact details | 108,612 | — |
-| Person↔detail links | 136,671 | — |
+| | What it is | Size | Status |
+|---|---|---|---|
+| **A** | A patient's own **email** not registered against their identity | **0** | ✅ fixed by backfill |
+| **B** | A patient's own **phone** not registered | **0** | ✅ fixed by backfill |
+| **C** | Person rows with contact channels but **no records** | 25,094 | ✅ **explained — not damage** |
+| **D** | One Person holding **3+ different humans** | **817** | ⚠️ open — repair built, rehearsed |
+| **E** | Phone numbers that cannot be canonicalised | ~1,690 people | ⚠️ 268 recoverable, rest is bad source data |
 
-DEV mirrors PROD closely enough to develop against (see §2 — the two differ by ≤6 rows on
-every measure taken).
+**D is the only genuine identity damage remaining.**
 
----
-
-## 2. The three defects, measured
-
-| Defect | PROD | DEV |
-|---|---|---|
-| **A.** Patient's own **email** not registered against them | **3,547** | 3,549 |
-| **B.** Patient's own **phone** not registered against them | **7,488** | 7,486 |
-| **C.** A contact detail registered against the **WRONG person** | **~5,460** (see correction) | **5,454** |
-
-> **CORRECTION 2026-09-04.** C was first reported as 12,452. That figure counted JOIN ROWS:
-> one channel matching several owner records was counted once per match. The deduplicated
-> figures are **5,454 distinct (channel, person) links** across **3,572 distinct channels** —
-> less than half the original claim. 5,454 is the repair unit. Caught by
-> `contact_identity_audit`, which uses DISTINCT, disagreeing with the ad-hoc query.
-
-**C is the serious one** and was found last. A and B mean "we won't recognise them". C
-means "we will recognise them **as somebody else**".
-
-> Phone figures reconstruct the canonical number in SQL rather than running the app's real
-> formatter, so treat B and C's phone halves as ±a few percent. The email figures are exact.
-
-### What C is NOT
-
-Household sharing is deliberate and correct: a child carrying a parent's email, four family
-members on one phone. The raw count of "detail attached to someone whose own record doesn't
-carry it" is ~53,000 — but almost all of that is legitimate household behaviour. The 12,452
-figure **excludes** anyone in the same household as the detail's true owner, so it is
-cross-household attribution only.
+Scale for context (PROD): 60,326 patients · 83,697 Persons · 108,612 channels · 136,671 links.
 
 ---
 
-## 2b. DEFECT D — whole families collapsed into ONE Person (found last, worst)
+## 2. Root causes — all traced to specific events
 
-**PROD, measured.** Persons holding records with 2+ distinct human names:
+Every cause is a **historical event whose code is already fixed**. Nothing is actively
+producing new damage except the one live defect in §3.
 
-| Distinct names on one Person | Persons |
+### D — the family collapse (817 Persons, ~2,728 people)
+
+Measured by *when records were attached*, not when the Person row was created — an
+earlier reading of `Person.created_at` gave the wrong answer:
+
+| Day collapse completed | Persons |
 |---|---|
-| 6 | 2 |
-| 5 | 38 |
-| 4 | 194 |
-| 3 | 583 |
-| 2 | 1,573 |
+| **2026-07-27** | **812** |
+| 2026-02-11 | 1 |
+| 2026-09-02 | 1 (test fixture) |
 
-The 2-name cases are ambiguous (a maiden/married name is one human — e.g. Person 75013
-holds both "jo lee" and "jo o'brien"). **817 Persons hold 3 or more distinct names**, and
-those are not name changes.
+2026-07-27 was a single 24,555-patient bulk import (adjacent days: 7, 1, 14, 14).
 
-### Verified example — Person 152744, "John Geary"
+The resolution in force matched on **channel only**. From the Go source's own
+description of what it replaced:
 
-```
-patient  first    last    dob          phone         email
-135585   Micaela  Geary   1984-01-04   7368557184    gearymicaela@gmail.com
-131893   John     Geary   1985-02-25   7887705702    gearymicaela@gmail.com
-133908   Beau     Geary   2012-04-26   7368557184    gearymicaela@gmail.com
-133907   Hallie   Geary   2014-01-10   7368557184    gearymicaela@gmail.com
-133906   Johnny   Geary   2018-06-02   7368557184    gearymicaela@gmail.com
-133905   Gigi     Geary   2021-02-15   (none)        gearymicaela@gmail.com
-```
+> *"SELECT person_id FROM TreatmentPlan_personchannel WHERE channel_id IN (...) LIMIT 1
+> — no name check, no DOB check, no merged_into filter and no ORDER BY. Any patient
+> sharing a family phone was absorbed into whichever Person the database happened to
+> hand back."*
 
-**Six humans — two adults and four children, six different birth dates — are ONE Person
-record.** All created 2026-07-27. The Person row itself has `dob = NULL`.
+**Worked example — PROD Person 152744, "John Geary":** six humans, six birth dates
+(1984, 1985, 2012, 2014, 2018, 2021), two parents and four children on one family
+email, under one identity named after the youngest child.
 
-Other confirmed cases: Person 90301 (six El-Boukas), 75759 (five Cordells), 76214 (a
-blended Jones / Clifford-Tucker family), 77083 (five unrelated-looking surnames).
+**Fixed:** Go `4e6b27a` (2026-08-17), Django `e1d172da` (2026-08-18).
 
-### Why the current design did NOT do this
+### C — record-less Persons (25,094): group-practice migration debt
 
-`Person.resolve` reuses a Person only on an EXACT name match. "Micaela Geary" and "Beau
-Geary" do not match, so today's code would create separate Persons in a shared Household —
-the correct outcome. This damage therefore predates the current resolution logic. The Go
-source documents the previous behaviour it replaced:
+**Not identity damage.** Practice 24 (SmileHQ) is a group head; 26 (Hacton) and 27
+(Church View) are child sites. The Go sync could not handle group practices until
+`7d9f93f` (2026-07-06); `dentally_site_assignment` rows were only created 2026-08-03.
 
-> *"SELECT person_id FROM TreatmentPlan_personchannel WHERE channel_id IN (...) LIMIT 1 —
-> no name check, no DOB check, no merged_into filter and no ORDER BY. Any patient sharing a
-> family phone was absorbed into whichever Person the database happened to hand back."*
+Sequence: patients imported into child practices → Persons built for them by the
+2026-07-12 backfill → patients **hard-deleted** and re-imported under the head → Person
+rows left behind with their channels.
 
-That produces exactly this. **INFERRED, not proven** — the rows carry no marker saying
-which code wrote them.
+Evidence:
 
-Note the DOB defence cannot help retroactively: the surviving Person row has `dob = NULL`,
-and `_dob_conflict` treats a missing DOB as "no conflict".
+- 99.4% of record-less Persons are in practices 26 and 27
+- 25,065 of 25,094 created **2026-07-12**
+- Practice 26: **20,070 Persons vs 6,675 patients**
+- Only **19 archives** in practice 26 → deletion was hard, not archival
+- Practices 26/27 have **no Dentally integration**; the key lives on head practice 24
+- Practice 24's integration was created **2026-07-27** — the import day itself
 
-### Why this outranks defects A–C
+**Confirmed to 99.97%:** of 19,907 stranded practice-26 Persons with name+DOB, the same
+human still exists as a patient in practice 24/26/27 for **19,855**. Of the 52 that did
+not match exactly: **26** same name with a corrected DOB, **21** renamed but a contact
+channel matches a live patient, **5** genuinely absent (a patient leaving the practice
+is a normal outcome).
 
-A and B mean "we won't recognise them". C means "we'll recognise them as someone else".
-**D means six people ARE one person in the database** — their records, consent, messages
-and appointment history hang off a single identity.
+**Live consequence:** 14,030 phone channels still hang off these obsolete Persons, so an
+inbound call from one resolves to an empty identity. That is a cleanup decision, not a
+repair.
 
-## 2c. DEFECT C's chain — corrected
+### E — unusable phones (~1,690 people, 3,437 records)
 
-A subagent reproduced the full sequence on DEV and **corrected the causality in §4 Cause 4**.
-My original account had the call-agent starting the chain. It does not:
+Concentrated in practices **13 (Practice Mannie)** and **16 (Danbury)** — 99% of cases,
+16.7% and 16.3% of their patients. Every other practice is at 0.1–0.2%. Those two hold
+the same humans (1,712 shared Dentally ids), so it is ~1,724 distinct people.
 
-- Running the exact PROD order (unlinked channel -> Go intake -> staff edit) does **NOT**
-  reproduce. At that point the channel is unlinked, so `lookupNameByPhone` returns nothing
-  and the intake is correctly named and correctly resolved.
-- The sequence that DOES reproduce PROD channel-for-channel (including `is_primary=false`)
-  starts with **a record already on Alex's Person having its phone edited to Jacqui's
-  number**. The call-agent misnaming is a *consequence* of that link, not its cause.
-- `lookupNameByPhone` (`EmailServiceGo/internal/callagent/storage.go:852`) is real and does
-  overwrite the extracted caller name — its first branch matches by **person_id**, taking
-  any record on any Person linked to the caller's phone channel, regardless of that
-  record's own number. Confirmed by replicating both queries in SQL.
-- `IntakeDetailView.perform_update` (`intake_views.py:492`) is a plain `serializer.save()`
-  with no re-resolution, so a real authenticated PATCH reproduces it identically. **The API
-  layer mitigates nothing.**
-- All three record types (Intake, Patient, Nurture) reproduce.
-- **The household compounds it**: a later genuine record for Jacqui on her own number finds
-  Alex as a channel candidate, sees a different name, and creates a new Person *inside
-  Alex's Household*. Two unrelated humans become a family.
-- The misattributed link never renames the messaging session (`link_channels` uses
-  `bulk_create`; `sync_new_record_name_to_sessions` is create-only), which is why PROD
-  session 1364 still shows bare digits. **The wrong identity is latent in the data rather
-  than visible in the inbox header.**
+Source: the **February 2026** Dentally import, run from Django by user 66 in 17-minute
+bursts, months before the Go migration service existed (2026-04-14).
 
-Alex Cooper's Person 120461 turns out to hold SIX records — his own patient row plus five
-unrelated call-agent intakes (Jacqui Rogan, Alison Sims, three "Unknown" callers) on five
-different numbers, four of them updated within four minutes of each other on 2026-07-15.
+Split by whether the number is recoverable from data we hold:
 
-Side finding from the same run: a raw insert into `TreatmentPlan_intake` fails on
-`is_marketing_funnel` NOT NULL with no DB default — a Go/Django `default=` drift of exactly
-the class the pre-commit parity guard exists to catch. Worth checking the Go `IntakeRecord`
-struct lists that column.
-
----
-
-## 3. Worked examples (real records, DEV)
-
-### 3.1 Jacqui Rogan — defect C, the serious one — **CONFIRMED ON PROD**
-
-Patient 30022 (practice 16), phone `+447864538288`. Verified on PROD read-only: that
-number is registered to **Alex Cooper**. Her practice-13 copy (patient 21508) has the
-number registered to nobody at all — so the same patient hits defect C in one practice and
-defect B in the other.
-
-```
- patient | practice | name         | phone      | number_registered_to
-   21508 |       13 | Jacqui Rogan | 7864538288 | (nobody)
-   30022 |       16 | Jacqui Rogan | 7864538288 | Alex Cooper
-```
-
-
-That number is registered as **channel 190505 — linked to Alex Cooper's Person (120461)**.
-Alex Cooper's own number is `+447376361234`; his Person carries both.
-
-Consequence: `messaging_messagesession` 1364 is an inbound conversation on Jacqui's number,
-`patient_id` NULL, `participant_name` = the bare digits. **The app shows the wrong identity
-for her number.** Alex Cooper and Jacqui are in different households, so this is not
-household sharing.
-
-Her email is fine — `srogan689@gmail.com` on file, same registered.
-
-### 3.2 Samantha Alexander — defects A + B (via practice duplication)
-
-Patient 31085 (practice 16), email `alexandersamb@gmail.com`.
-Her Person (119010) is registered under `jamiespears@hotmail.co.uk` and Jamie's phone.
-
-Household 16213 is the Spears family — Harrison, Freddie, Jamie, Samantha, all registered
-under Jamie's email. For the children that is correct (they have no email of their own).
-For Samantha it is not: she has her own address on file and it was never registered.
-
-Her address **does** exist as a channel — id 151223, **practice 13**, created
-`2026-07-12 21:35`. Her patient record is in **practice 16**. Registration is
-practice-scoped by design, so the practice-16 copy simply never got one.
-
-### 3.3 Christopher Dale — defect A, simplest form
-
-Patient 39322, `candfdale@btinternet.com` on file, **no email registered at all**.
-
----
-
-## 4. Root causes
-
-### Cause 1 — the 2026-07-12 backfill left populations behind (~3,080 of defect A)
-
-Every email channel in the system was first created on **2026-07-12**. That job did not
-finish the whole population. Practices **21** (2,265) and **19** (813) are largely missing,
-and nothing has gone back for them.
-
-This is **already documented in your own code** —
-`TreatmentPlan/contact/channel_resolution.py`:
-
-> *"The channel row was never created at all, even though the address or number sits on the
-> Patient record — a Feb bulk import and the 2026-07-12 backfill each left populations
-> behind. (866 emails, 3,833 phones)."*
-
-So this defect class was known; §2 is its current size.
-
-### Cause 2 — the same human in two practices (~316 of defect A)
-
-Practices 13 and 16 are a head/child pair holding the same patients. Contact registration
-is deliberately practice-scoped (a channel must never cross practices). The July backfill
-registered the practice-13 copies; the practice-16 copies were left without. 282 of
-practice 16's 384 cases are exactly this.
-
-**This is not a scoping bug** — the scoping is right. The practice-16 copies just need
-their own registration.
-
-### Cause 3 — registered but not linked (399 of defect A)
-
-The detail exists as a channel in the correct practice and simply isn't attached to the
-person.
-
-### Cause 4 — attributed to the wrong person (defect C) — CAUSE NOT YET ESTABLISHED
-
-The strongest candidate is documented in the Go source itself. Before the current
-resolution rewrite, `EmailServiceGo/internal/dentally/migration/service.go` resolved a
-person as:
-
-```sql
-SELECT person_id FROM TreatmentPlan_personchannel WHERE channel_id IN (...) LIMIT 1
-```
-
-Its own comment describes the consequence: *"no name check, no DOB check, no merged_into
-filter and no ORDER BY. Any patient sharing a family phone was absorbed into whichever
-Person the database happened to hand back."*
-
-That would produce exactly defect C. **But I have not proved these 12,452 rows came from
-that code path** — that needs either row-level timestamps tied to a sync run, or the sync
-logs. Until then this is a hypothesis, not a finding.
-
----
-
-## 5. What was fixed today (all uncommitted)
-
-| Area | Change |
+| | Count |
 |---|---|
-| Ingress harness scorer | Refs keyed to the DB row their delivery landed on, not their email. 7 of 14 scenarios could not previously fail. |
-| Harness phone namespacing | Per-run phone shift so old runs' data can't block new ones. |
-| CSV import | A row that dedups onto an existing patient now contributes its channels instead of discarding them — the dedup was manufacturing the next duplicate. |
-| Canonical keys | ONE definition per key: `TreatmentPlan/utils/contact_keys.py` + Go `pkg/email`, `pkg/personname`. ~20 inline Django copies and 3 name normalizers (with 2 behaviours) removed. |
-| Name key bug | `Person.resolve` compared names without collapsing internal whitespace while the duplicate *finder* did — so the finder reported matches the resolver refused. Fixed both sides. |
-| Go writers | callagent, Dentally migration, recall engine, daylist store all use the shared keys. |
-| Public form ingress | `marketingBroadcast/views/public_form_views.py` stored the submitted address raw. |
-| Cross-language parity | `CROSS-LANGUAGE PARITY` markers on all 5 Django↔Go duplicated implementations + `docs/CROSS_LANGUAGE_PARITY.md`. |
+| **Recoverable** — a Dentally value reaches real E.164 | **268** |
+| Unrecoverable — no value reaches E.164 | 3,473 |
+| Recoverable from later syncs (`dentally_appointment` 47, `recall_patient` 5) | 52 |
+
+The 268 have a specific, fixable cause: **`+44` forced onto numbers that already carried
+a different international prefix.**
+
+```
+stored 4435699097155  ← source +35699097155    (Malta)
+stored 44034617277712 ← source 0034617277712   (Spain, 00 prefix)
+stored +GB7544805726  ← source +447544805726   (the +GB bug)
+```
+
+The rest is Dentally's own data being incomplete — `224012` with no area code,
+`0778601318` at 10 digits where a UK mobile needs 11. Not recoverable from any database.
 
 ---
 
-## 6. Open, in priority order
+## 3. The one LIVE defect — contact-correction misattribution
 
-1. **Defect C (12,452 rows).** Contact details attributed to the wrong human. Establish the
-   cause before repairing — a blind repair could detach details that are correct.
-2. **Defect B (7,488).** Phones — the larger of the two "not registered" defects, and the
-   one I under-reported for most of this investigation.
-3. **Defect A (3,547).** Emails. Causes 1 and 3 are safe to backfill; Cause 2 needs a
-   decision (it means deliberately registering the same human once per practice).
-4. **Dentally tables outside the graph.** `recall_patient`, `recall_record`,
-   `daylist_patient`, `dentally_appointment` have no person or channel FK. 3,303 distinct
-   addresses in them are registered nowhere. `bridge_dentally_identity` (read-only by
-   default) is built but has never been run with `--apply`.
-5. **Truth-table case 5.** Same person, all-new email and phone, can never be matched —
-   name is not a candidacy signal. Product decision, not a code fix.
+Everything above is historical. This one fires **today**, every time staff correct a
+contact detail.
 
----
+`TreatmentPlan/contact/signals.py::_preserve_person_and_link_channels`: on update it
+keeps the record's existing Person and links the record's **current** contact details to
+that **old** Person. It computes `_contact_fields_changed` on the line above and does
+not use it to gate the linking.
 
-## 7. Corrections made during this investigation
+**Traced production case:** Jacqui Rogan's number `+447864538288` is registered to **Alex
+Cooper**. His Person also holds intakes named "Jacqui Rogan", "Alison Sims" and three
+"Unknown" callers.
 
-Recorded because each one changed the conclusion:
+**Fix applied:** re-resolve when the name **and** contact both changed. Both conditions
+are required — each guards a legitimate edit:
 
-- **"242 addresses invisible"** → the real figure is **3,303**. I had measured whether the
-  *person* was reachable; dedup keys on the *address*.
-- **"Email only"** → phones are ~2× worse (7,488 vs 3,547) and went unmeasured for most of
-  the session.
-- **"Missing/unlinked"** → Jacqui's case is neither: the detail is linked, to the wrong
-  human. That is defect C, found only because a specific patient was queried by name.
-- **"The August call-agent finding is outdated"** → it was correct. Zero call-agent intakes
-  get a Person at insert; 1,445 of 1,447 are welded only when Django later re-saves them,
-  median <24h but a tail to 59 days.
-- **Cross-language drift introduced mid-session** — fixing Django's name key left Go's copy
-  on the old rule for several hours. Caught by sweep, not by a test. This is why §5's
-  parity markers exist.
+- contact changed, name same → same human, new mobile. Keep their Person.
+- name changed, contact same → a spelling fix. Re-resolving would split one human in two.
+
+**20 tests; mutation-proven** — removing the gate fails exactly 9.
 
 ---
 
-## 8. How to re-run these measurements
+## 4. Guards, and what actually proves them
 
-DEV DSN is in `ingress-test-engine/.env` (`dev_dsn`). PROD is read-only:
+| Guard | Proof |
+|---|---|
+| Django `Person.resolve` | `test_family_collapse_cannot_recur.py` replays the real six-Geary shape. **Mutation: remove name/DOB check → 5 of 6 fail** |
+| Go resolution | `TestPersonResolve_SharedPhoneDoesNotWeldFamilyIntoOnePerson`. **Mutation: neuter checks → fails** ("no Person named 'Autumn Wilkinson'... got Ian Wilkinson") |
+| Contact-correction gate | 20 tests. **Mutation: remove patch → 9 fail** |
+| Canonical email/name/phone keys | Shared fixtures both languages read; mutation-proven both sides |
+
+**Caution:** the first Go mutation attempt broke the *build* (unused variables), which
+proves nothing. A build failure looks like a passing mutation test if you don't read the
+output. Always mutate in a way that compiles.
+
+**Remaining structural risk:** `Person.resolve` (Django) and
+`linkPatientToPersonAndChannels` (Go) are two implementations of the same rule, kept in
+step only by a `CROSS-LANGUAGE PARITY` comment. The keys have shared fixtures; the
+*resolution logic* does not. That is the gap that caused this, and it is still open —
+see `docs/CROSS_LANGUAGE_PARITY.md`.
+
+---
+
+## 5. Tooling built (all read-only unless `--apply`)
+
+| Command | Purpose |
+|---|---|
+| `contact_identity_audit --snapshot / --compare` | Snapshots the **identity of every affected row**; diff reports FIXED / PERSISTING / **NEW** |
+| `validate_person_channel_links` | Per-link verification with downstream checks |
+| `split_collapsed_persons` | The D repair. Creates and re-points only — **never deletes** |
+| `identity_guard` | Cause-agnostic damage detector, exits 1 on new damage |
+| `bridge_dentally_identity` | Links Dentally rows reaching no Patient |
+| `backfill_missing_person_channels` | Pre-existing; fixed A and B |
+
+**Why snapshots record row identity, not counts:** `before 3,549 / after 3,549` reads as
+"no effect" but is equally consistent with fixing 3,549 rows and breaking 3,549 others.
+Proven on fixtures: identical totals, different rows → correctly reported 3 fixed, 3 NEW.
+
+`split_collapsed_persons` uses `Person.resolve`, so a human who already exists rejoins
+their real identity rather than gaining a duplicate — verified on DEV, where Jacqui's
+intake returned to her existing Person 118602.
+
+---
+
+## 6. Production plan
+
+Fresh prod copy already pulled: `_prod_sim/fresh-2026-09-04/` (1.9 GB, archive stamped
+2026-09-04 16:00:01, `pg_restore` verified, 5,578 objects).
+
+```
+# 1. rehearse on the restored prod copy FIRST
+python manage.py contact_identity_audit --snapshot before.csv
+# deploy identity fixes, then:
+python manage.py split_collapsed_persons --csv plan.csv        # writes nothing
+python manage.py split_collapsed_persons --person <id> --apply # one, inspect by hand
+python manage.py split_collapsed_persons --limit 20 --apply
+python manage.py split_collapsed_persons --apply
+python manage.py contact_identity_audit --snapshot after.csv
+python manage.py contact_identity_audit --compare before.csv after.csv
+```
+
+**Acceptance:** D falls, **NEW is zero on every defect**, no control row breaks. A better
+total with any NEW rows is not a pass.
+
+**Order matters:** deploy the code fixes first, or the repair competes with a live
+defect. Run outside sync windows — a Dentally import mid-repair re-resolves records while
+they are being moved.
+
+**Known limits of the repair, both deliberate:** person-level rows (Notes, Activity) stay
+on the anchor Person because they carry no per-human marker; and stale channel links are
+not removed, so after repair Jacqui's number is registered to *both* her and Alex Cooper.
+
+---
+
+## 7. Conclusions that were wrong, and what corrected them
+
+Recorded because each changed the answer, and because the pattern matters more than any
+single number.
+
+| Claim | Reality | Caught by |
+|---|---|---|
+| Defect C = 12,452 misattributions | **Not misattribution at all** — 25,094 record-less Persons from a group-practice migration | Reading actual rows instead of counting query output |
+| C = 5,454 (after first correction) | Still wrong; the join inflated it and the definition was wrong | The audit tool disagreeing with the ad-hoc query |
+| "242 addresses invisible" | **3,303** | Measured person-reachability, not address-reachability |
+| Email is the problem | Phones are ~2× worse and went unmeasured for most of the session | Asking about a specific patient (Jacqui) |
+| 370 phones recoverable | **268** — bare `needs_review` keys counted as successes | Requiring the result to start with `+` |
+| Backfill damaged 356 links | **Zero.** Three rounds of false alarms | Inspecting all 27 flagged links individually |
+| 26 control rows "broke" | Artefact of my own harness — `ORDER BY id LIMIT 2000` shifted between runs | Checking three of them |
+| 772 collapses from the 12 Jul backfill | **812 from the 27 Jul import** | Grouping by record attachment, not `Person.created_at` |
+| "Reuse the stranded Persons" | They are in **different practices** — cross-practice merging | Checking practice ids |
+| "The repair tool invents Persons" | It uses `Person.resolve` and reuses | Reading the code I wrote |
+| Dentally search confirms patients | The API **returns HTTP 200 and ignores the filter** — a nonsense query returns the same first page | Querying `ZZZNOSUCHNAMEZZZ` |
+
+**The recurring failure:** measuring one thing and reporting it as another; trusting a
+number because the query succeeded. Every correction came from looking at individual
+rows rather than aggregates.
+
+**New Dentally gotcha for the runbook:** `/v1/patients` accepts `q=`,
+`filter[last_name]=` and `search_criteria=` with **HTTP 200 and silently ignores them**.
+Existing note says 401 = bad key, 404 = route missing; add: **200 ≠ filtered**.
+
+---
+
+## 8. Reproducing any measurement
+
+DEV DSN: `dev_dsn` in `ingress-test-engine/.env` (read with an absolute path — the shell
+cwd resets between calls). PROD read-only:
 
 ```
 psql "postgresql://sim_readonly@100.95.79.104:5432/treatmentpath_db?sslmode=prefer"
 ```
 
-The queries for §2 are inline in this session's transcript; the two that matter are
-(a) patients whose own email/phone is absent from their Person's channels, and
-(b) channels linked to a Person where the value is another Person's own detail and the two
-are not in one household.
+All defect definitions live in one place —
+`TreatmentPlan/contact/identity_defects.py` — which routes through
+`ContactChannel.canonical_key`, the real chokepoint. **Never reimplement a canonical key
+in SQL:** the first version rebuilt the phone key as
+`'+'||country_code||phone_number`, could not apply the practice's default country, and
+produced three separate false alarms in one afternoon.
 
----
-
-## 9. Verification harness — `contact_identity_audit`
-
-Read-only. Snapshots the IDENTITY of every affected row to CSV, and diffs two snapshots.
-
-```
-python manage.py contact_identity_audit --snapshot before.csv
-...apply a fix...
-python manage.py contact_identity_audit --snapshot after.csv
-python manage.py contact_identity_audit --compare before.csv after.csv
-```
-
-**Why identity and not counts.** `before: 3,549 / after: 3,549` reads as "no effect" but is
-equally consistent with fixing 3,549 rows and breaking 3,549 different ones. The diff
-reports FIXED / PERSISTING / **NEW** per defect; NEW is the column that matters. Proven on
-crafted fixtures: identical totals, wholly different row sets -> correctly reported 3 fixed,
-3 NEW, plus a control row that broke.
-
-**Control group.** 2,000 rows that are CORRECT today are snapshotted as `CONTROL_HEALTHY`.
-Any that stop being healthy are reported as regressions. A repair with a better total but a
-broken control row is not safe.
-
-**One definition per defect**, shared by both snapshots, so before/after cannot drift in how
-they define "broken".
-
-### Baseline captured (DEV, 2026-09-04) — `docs/identity-snapshots/dev-before.csv`
-
-| Defect | Rows |
-|---|---|
-| A email unregistered | 3,549 |
-| B phone unregistered | 7,486 |
-| C wrong person | 5,454 |
-| D collapsed person | 817 |
-| CONTROL healthy | 2,000 |
-| **total** | **19,306** |
-
-Take the equivalent PROD snapshot before any repair there — the connection is read-only, so
-snapshotting PROD is safe.
+**Test-data trap:** `+4477009000xx` is Ofcom's reserved fictitious range.
+`canonical_key` rejects it outright, so a fixture using it silently creates **no phone
+channel** and every phone assertion passes or fails for the wrong reason.
