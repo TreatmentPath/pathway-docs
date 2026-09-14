@@ -44,3 +44,18 @@ fixture-pinned key instead — that is the only guard that actually holds.
 `sequenceMatcherRatio`) ports Python's `difflib.SequenceMatcher`, but Django has
 no fuzzy name matcher of its own — this is Go-only, used by the duplicate
 *detector*, not the resolver. Nothing to keep in step.
+
+## Dentally phone field choice — `pick_usable_phone` / `pickUsablePhone`
+
+| | |
+|---|---|
+| Django | `TreatmentPlan/utils/phones.py` → `pick_usable_phone` |
+| Go | `internal/dentally/migration/service.go` → `pickUsablePhone` |
+| Django test | `TreatmentPlan/tests/test_pick_usable_phone.py` |
+| Go test | `internal/dentally/migration/extract_phones_field_choice_test.go` |
+
+Chooses between Dentally's `*_normalized` field and the raw one, preferring
+whichever canonicalises. Dentally's normalisation is wrong for non-UK numbers
+(+44 prefixed onto an already-international number), which silently made foreign
+patients uncontactable. Both suites use the same real production values; both fail
+if the old "always prefer normalized" behaviour returns.
